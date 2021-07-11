@@ -2,4 +2,4 @@
 pub mod tests;
 
 #[cfg(test)]
-pub mod erc20;
+pub mod did;

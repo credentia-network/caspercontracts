@@ -5,7 +5,7 @@ build-contract:
 	cargo build --release -p contract --target wasm32-unknown-unknown
 
 test-only:
-	cargo test -p tests
+	cargo test -p tests -- --nocapture
 
 copy-wasm-file-to-test:
 	cp target/wasm32-unknown-unknown/release/contract.wasm tests/wasm

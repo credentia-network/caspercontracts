@@ -1,7 +1,8 @@
 #![no_main]
 #![allow(unused_imports)]
 #![allow(unused_parens)]
-#![allow(non_snake_case)]
+#[warn(non_snake_case)]
+
 
 extern crate alloc;
 
@@ -19,168 +20,62 @@ use types::{
     account::AccountHash,
     bytesrepr::{FromBytes, ToBytes},
     contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys},
-    runtime_args, CLType, CLTyped, CLValue, Group, Parameter, RuntimeArgs, URef, U256,
+    runtime_args, CLTyped, CLValue, Group, Parameter, RuntimeArgs, URef, U256,
+    CLType,
 };
 
+
 #[no_mangle]
-pub extern "C" fn name() {
-    let val: String = get_key("name");
-    ret(val)
+pub extern "C" fn identityOwner(){
+    let identity: AccountHash = runtime::get_named_arg("identity");
+    let owner: AccountHash = get_key(&owner_key(&identity));
+
+    //ret(owner)
+    ret(U256([0,0,1,3]))//dont return value!
 }
 
 #[no_mangle]
-pub extern "C" fn symbol() {
-    let val: String = get_key("symbol");
-    ret(val)
+pub extern "C" fn changeOwner(){
+    let identity: AccountHash = runtime::get_named_arg("identity");
+    let newOwner: AccountHash = runtime::get_named_arg("newOwner");
+    _changeOwner(identity,runtime::get_caller(),newOwner)
 }
 
-#[no_mangle]
-pub extern "C" fn decimals() {
-    let val: u8 = get_key("decimals");
-    ret(val)
-}
-
-#[no_mangle]
-pub extern "C" fn total_supply() {
-    let val: U256 = get_key("total_supply");
-    ret(val)
-}
-
-#[no_mangle]
-pub extern "C" fn balance_of() {
-    let account: AccountHash = runtime::get_named_arg("account");
-    let val: U256 = get_key(&balance_key(&account));
-    ret(val)
-}
-
-#[no_mangle]
-pub extern "C" fn allowance() {
-    let owner: AccountHash = runtime::get_named_arg("owner");
-    let spender: AccountHash = runtime::get_named_arg("spender");
-    let val: U256 = get_key(&allowance_key(&owner, &spender));
-    ret(val)
-}
-
-#[no_mangle]
-pub extern "C" fn approve() {
-    let spender: AccountHash = runtime::get_named_arg("spender");
-    let amount: U256 = runtime::get_named_arg("amount");
-    _approve(runtime::get_caller(), spender, amount);
-}
-
-#[no_mangle]
-pub extern "C" fn transfer() {
-    let recipient: AccountHash = runtime::get_named_arg("recipient");
-    let amount: U256 = runtime::get_named_arg("amount");
-    _transfer(runtime::get_caller(), recipient, amount);
-}
-
-#[no_mangle]
-pub extern "C" fn transfer_from() {
-    let owner: AccountHash = runtime::get_named_arg("owner");
-    let recipient: AccountHash = runtime::get_named_arg("recipient");
-    let amount: U256 = runtime::get_named_arg("amount");
-    _transfer_from(owner, recipient, amount);
+fn _changeOwner(identity: AccountHash, actor:AccountHash, newOwner:AccountHash){
+    set_key(&owner_key(&identity),newOwner)
 }
 
 #[no_mangle]
 pub extern "C" fn call() {
-    let token_name: String = runtime::get_named_arg("token_name");
-    let token_symbol: String = runtime::get_named_arg("token_symbol");
-    let token_decimals: u8 = runtime::get_named_arg("token_decimals");
-    let token_total_supply: U256 = runtime::get_named_arg("token_total_supply");
-
+    //let identity: AccountHash = runtime::get_named_arg("identity");
+    
     let mut entry_points = EntryPoints::new();
-    entry_points.add_entry_point(endpoint("name", vec![], CLType::String));
-    entry_points.add_entry_point(endpoint("symbol", vec![], CLType::String));
-    entry_points.add_entry_point(endpoint("decimals", vec![], CLType::U8));
-    entry_points.add_entry_point(endpoint("total_supply", vec![], CLType::U32));
     entry_points.add_entry_point(endpoint(
-        "transfer",
+        "identityOwner",
         vec![
-            Parameter::new("recipient", AccountHash::cl_type()),
-            Parameter::new("amount", CLType::U256),
+            Parameter::new("identity", AccountHash::cl_type()),
         ],
-        CLType::Unit,
+        CLType::U512,
     ));
     entry_points.add_entry_point(endpoint(
-        "balance_of",
-        vec![Parameter::new("account", AccountHash::cl_type())],
-        CLType::U256,
-    ));
-    entry_points.add_entry_point(endpoint(
-        "allowance",
+        "changeOwner",
         vec![
-            Parameter::new("owner", AccountHash::cl_type()),
-            Parameter::new("spender", AccountHash::cl_type()),
-        ],
-        CLType::U256,
-    ));
-    entry_points.add_entry_point(endpoint(
-        "approve",
-        vec![
-            Parameter::new("spender", AccountHash::cl_type()),
-            Parameter::new("amount", CLType::U256),
-        ],
-        CLType::Unit,
-    ));
-    entry_points.add_entry_point(endpoint(
-        "transfer_from",
-        vec![
-            Parameter::new("owner", AccountHash::cl_type()),
-            Parameter::new("recipient", AccountHash::cl_type()),
-            Parameter::new("amount", CLType::U256),
+            Parameter::new("identity", AccountHash::cl_type()),
+            Parameter::new("newOwner", AccountHash::cl_type()),
         ],
         CLType::Unit,
     ));
 
-    let mut named_keys = NamedKeys::new();
-    named_keys.insert("name".to_string(), storage::new_uref(token_name).into());
-    named_keys.insert("symbol".to_string(), storage::new_uref(token_symbol).into());
-    named_keys.insert(
-        "decimals".to_string(),
-        storage::new_uref(token_decimals).into(),
-    );
-    named_keys.insert(
-        "total_supply".to_string(),
-        storage::new_uref(token_total_supply).into(),
-    );
-    named_keys.insert(
-        balance_key(&runtime::get_caller()),
-        storage::new_uref(token_total_supply).into(),
-    );
+    //let mut named_keys = NamedKeys::new();
+    
 
-    let (contract_hash, _) =
-        storage::new_locked_contract(entry_points, Some(named_keys), None, None);
-    runtime::put_key("ERC20", contract_hash.into());
-    runtime::put_key("ERC20_hash", storage::new_uref(contract_hash).into());
+    let (contract_hash, _) = storage::new_locked_contract(entry_points, None, None, None);
+    runtime::put_key("CasperDIDRegistry", contract_hash.into());//Name of contract?
+    runtime::put_key("CasperDIDRegistry_hash", storage::new_uref(contract_hash).into());
 }
 
-fn _transfer(sender: AccountHash, recipient: AccountHash, amount: U256) {
-    let sender_key = balance_key(&sender);
-    let recipient_key = balance_key(&recipient);
-    let new_sender_balance: U256 = (get_key::<U256>(&sender_key) - amount);
-    set_key(&sender_key, new_sender_balance);
-    let new_recipient_balance: U256 = (get_key::<U256>(&recipient_key) + amount);
-    set_key(&recipient_key, new_recipient_balance);
-}
-
-fn _transfer_from(owner: AccountHash, recipient: AccountHash, amount: U256) {
-    let key = allowance_key(&owner, &runtime::get_caller());
-    _transfer(owner, recipient, amount);
-    _approve(
-        owner,
-        runtime::get_caller(),
-        (get_key::<U256>(&key) - amount),
-    );
-}
-
-fn _approve(owner: AccountHash, spender: AccountHash, amount: U256) {
-    set_key(&allowance_key(&owner, &spender), amount);
-}
-
-fn ret<T: CLTyped + ToBytes>(value: T) {
-    runtime::ret(CLValue::from_t(value).unwrap_or_revert())
+fn owner_key(identity: &AccountHash) -> String{
+    format!("owner_{}", identity)
 }
 
 fn get_key<T: FromBytes + CLTyped + Default>(name: &str) -> T {
@@ -206,12 +101,8 @@ fn set_key<T: ToBytes + CLTyped>(name: &str, value: T) {
     }
 }
 
-fn balance_key(account: &AccountHash) -> String {
-    format!("balances_{}", account)
-}
-
-fn allowance_key(owner: &AccountHash, sender: &AccountHash) -> String {
-    format!("allowances_{}_{}", owner, sender)
+fn ret<T: CLTyped + ToBytes>(value: T) {
+    runtime::ret(CLValue::from_t(value).unwrap_or_revert())
 }
 
 fn endpoint(name: &str, param: Vec<Parameter>, ret: CLType) -> EntryPoint {

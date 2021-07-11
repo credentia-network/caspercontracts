@@ -1,64 +1,38 @@
-use crate::erc20::{token_cfg, Sender, Token};
+#![allow(unused_imports)]
+#![allow(unused_assignments)]
+#![allow(dead_code)]
+
+use casper_engine_test_support::{Code, Hash, SessionBuilder, TestContext, TestContextBuilder};
+use casper_types::{
+    account::AccountHash, bytesrepr::FromBytes, runtime_args, AsymmetricType, CLTyped, PublicKey,
+    RuntimeArgs, U256, U512, CLType,
+};
+use crate::did::{did_cfg, Sender, Did};
 
 #[test]
-fn test_erc20_deploy() {
-    let t = Token::deployed();
-    assert_eq!(t.name(), token_cfg::NAME);
-    assert_eq!(t.symbol(), token_cfg::SYMBOL);
-    assert_eq!(t.decimals(), token_cfg::DECIMALS);
-    assert_eq!(t.balance_of(t.ali), token_cfg::total_supply());
-    assert_eq!(t.balance_of(t.bob), 0.into());
-    assert_eq!(t.allowance(t.ali, t.ali), 0.into());
-    assert_eq!(t.allowance(t.ali, t.bob), 0.into());
-    assert_eq!(t.allowance(t.bob, t.ali), 0.into());
-    assert_eq!(t.allowance(t.bob, t.bob), 0.into());
+fn test_change_owner(){
+    let mut did = Did::deployed();
+    
+    let result = did.changeOwner(Sender(did.ali),did.ali,did.bob);
+    println!("Result change owner: {:?}",result);
 }
 
 #[test]
-fn test_erc20_transfer() {
-    let amount = 10.into();
-    let mut t = Token::deployed();
-    t.transfer(t.bob, amount, Sender(t.ali));
-    assert_eq!(t.balance_of(t.ali), token_cfg::total_supply() - amount);
-    assert_eq!(t.balance_of(t.bob), amount);
+fn test_did_identityOwner() {
+    
+    let mut did = Did::deployed();
+    println!("Ali: {:?}",did.ali);
+    println!("Bob: {:?}",did.bob);
+    
+    let result = did.identityOwner(Sender(did.ali),did.ali);//return function dont work! 
+    println!("Result identity owner: {:?}",result);
 }
 
-#[test]
-#[should_panic]
-fn test_erc20_transfer_too_much() {
-    let amount = 1.into();
-    let mut t = Token::deployed();
-    t.transfer(t.ali, amount, Sender(t.bob));
-}
 
-#[test]
-fn test_erc20_approve() {
-    let amount = 10.into();
-    let mut t = Token::deployed();
-    t.approve(t.bob, amount, Sender(t.ali));
-    assert_eq!(t.balance_of(t.ali), token_cfg::total_supply());
-    assert_eq!(t.balance_of(t.bob), 0.into());
-    assert_eq!(t.allowance(t.ali, t.bob), amount);
-    assert_eq!(t.allowance(t.bob, t.ali), 0.into());
-}
 
-#[test]
-fn test_erc20_transfer_from() {
-    let allowance = 10.into();
-    let amount = 3.into();
-    let mut t = Token::deployed();
-    t.approve(t.bob, allowance, Sender(t.ali));
-    t.transfer_from(t.ali, t.joe, amount, Sender(t.bob));
-    assert_eq!(t.balance_of(t.ali), token_cfg::total_supply() - amount);
-    assert_eq!(t.balance_of(t.bob), 0.into());
-    assert_eq!(t.balance_of(t.joe), amount);
-    assert_eq!(t.allowance(t.ali, t.bob), allowance - amount);
-}
 
-#[test]
-#[should_panic]
-fn test_erc20_transfer_from_too_much() {
-    let amount = token_cfg::total_supply().checked_add(1.into()).unwrap();
-    let mut t = Token::deployed();
-    t.transfer_from(t.ali, t.joe, amount, Sender(t.bob));
-}
+
+
+
+
+
