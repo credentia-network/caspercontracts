@@ -13,19 +13,18 @@ use crate::did::{did_cfg, Sender, Did};
 fn test_change_owner(){
     let mut did = Did::deployed();
     
-    let result = did.changeOwner(Sender(did.ali),did.ali,did.bob);
-    println!("Result change owner: {:?}",result);
-}
+    did.changeOwner(Sender(did.ali),did.ali,did.bob);
 
-#[test]
-fn test_did_identityOwner() {
+    let owner = did.identityOwner(did.ali);
+    println!("Bob: {:?}", did.bob);
+    println!("Result change owner: {:?}",owner);
+    assert_eq!(did.bob, owner);
     
-    let mut did = Did::deployed();
-    println!("Ali: {:?}",did.ali);
-    println!("Bob: {:?}",did.bob);
     
-    let result = did.identityOwner(Sender(did.ali),did.ali);//return function dont work! 
-    println!("Result identity owner: {:?}",result);
+    let identity: AccountHash = did.ali;
+    did.asd(Sender(did.ali), identity);
+    let asd = did.call_asd();
+    println!("Result asd: {:?}",asd);
 }
 
 

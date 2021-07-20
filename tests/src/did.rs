@@ -63,6 +63,7 @@ impl Did{
             Ok(maybe_value) => {
                 let value = maybe_value
                     .into_t()
+                    //.unwrap();
                     .unwrap_or_else(|_| panic!("{} is not expected type.", name));
                 Some(value)
             }
@@ -80,15 +81,10 @@ impl Did{
     }
 
     pub fn identityOwner(&mut self,
-                        sender: Sender,
-                        identity:AccountHash){
-        self.call(
-            sender,
-            "identityOwner",
-            runtime_args! {
-                "identity" => identity,
-            },
-        );
+                        identity: AccountHash) -> AccountHash{
+        let owner_key = format!("owner_{}", identity);
+        //println!("{}",owner_key);
+        self.query_contract(&owner_key).unwrap()
     }
 
     pub fn changeOwner(&mut self,
@@ -103,6 +99,20 @@ impl Did{
                 "newOwner" => newOwner,
             },
         )
+    }
+
+    pub fn asd(&mut self,sender: Sender, identity: AccountHash){
+        self.call(
+            sender,
+            "asd",
+            runtime_args! {
+                "identity" => identity,
+            },
+        )
+    }
+
+    pub fn call_asd(&mut self) -> AccountHash{
+        self.query_contract("asd").unwrap()
     }
 
 }

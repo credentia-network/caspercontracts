@@ -3,7 +3,6 @@
 #![allow(unused_parens)]
 #[warn(non_snake_case)]
 
-
 extern crate alloc;
 
 use alloc::{
@@ -11,43 +10,43 @@ use alloc::{
     string::String,
 };
 use core::convert::TryInto;
+use std::io::SeekFrom;
 
 use contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use types::{
-    account::AccountHash,
-    bytesrepr::{FromBytes, ToBytes},
-    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys},
-    runtime_args, CLTyped, CLValue, Group, Parameter, RuntimeArgs, URef, U256,
-    CLType,
-};
+use types::{CLType, CLTyped, CLValue, Group, Parameter, RuntimeArgs, U256, U512, URef, account::AccountHash, bytesrepr::{FromBytes, ToBytes}, contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys}, runtime_args};
+
 
 
 #[no_mangle]
-pub extern "C" fn identityOwner(){
-    let identity: AccountHash = runtime::get_named_arg("identity");
+pub extern "C" fn identityOwner(identity: AccountHash) -> AccountHash { 
     let owner: AccountHash = get_key(&owner_key(&identity));
 
-    //ret(owner)
-    ret(U256([0,0,1,3]))//dont return value!
+    owner
+}
+
+#[no_mangle]
+pub extern "C" fn asd(){
+    let identity:AccountHash = runtime::get_named_arg("identity");
+    let acc: AccountHash = identityOwner(identity);
+    set_key("asd", acc)
 }
 
 #[no_mangle]
 pub extern "C" fn changeOwner(){
     let identity: AccountHash = runtime::get_named_arg("identity");
-    let newOwner: AccountHash = runtime::get_named_arg("newOwner");
-    _changeOwner(identity,runtime::get_caller(),newOwner)
+    let new_owner: AccountHash = runtime::get_named_arg("newOwner");
+    _change_owner(identity,runtime::get_caller(), new_owner);
 }
 
-fn _changeOwner(identity: AccountHash, actor:AccountHash, newOwner:AccountHash){
-    set_key(&owner_key(&identity),newOwner)
+fn _change_owner(identity: AccountHash, actor: AccountHash, new_owner:AccountHash){
+    set_key(&owner_key(&identity),new_owner);
 }
 
 #[no_mangle]
 pub extern "C" fn call() {
-    //let identity: AccountHash = runtime::get_named_arg("identity");
     
     let mut entry_points = EntryPoints::new();
     entry_points.add_entry_point(endpoint(
@@ -65,7 +64,13 @@ pub extern "C" fn call() {
         ],
         CLType::Unit,
     ));
-
+    entry_points.add_entry_point(endpoint(
+        "asd",
+        vec![
+            Parameter::new("identity", AccountHash::cl_type()),
+        ],
+        CLType::Unit,
+    ));
     //let mut named_keys = NamedKeys::new();
     
 
@@ -101,7 +106,7 @@ fn set_key<T: ToBytes + CLTyped>(name: &str, value: T) {
     }
 }
 
-fn ret<T: CLTyped + ToBytes>(value: T) {
+pub(crate) fn ret<T: CLTyped + ToBytes>(value: T) {
     runtime::ret(CLValue::from_t(value).unwrap_or_revert())
 }
 
