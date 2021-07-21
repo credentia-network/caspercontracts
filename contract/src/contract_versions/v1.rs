@@ -21,17 +21,17 @@ use types::{CLType, CLTyped, CLValue, Group, Parameter, RuntimeArgs, U256, U512,
 
 
 #[no_mangle]
-pub extern "C" fn identityOwner() { 
-    let identity:AccountHash = runtime::get_named_arg("identity");
+pub extern "C" fn identityOwner(identity: AccountHash) -> AccountHash { 
     let owner: AccountHash = get_key(&owner_key(&identity));
-    ret(owner);
+
+    owner
 }
 
 #[no_mangle]
 pub extern "C" fn asd(){
     let identity:AccountHash = runtime::get_named_arg("identity");
-    //let acc: AccountHash = identityOwner(identity);
-    set_key("asd", identity/*acc*/);
+    let acc: AccountHash = identityOwner(identity);
+    set_key("asd", acc)
 }
 
 #[no_mangle]
@@ -41,7 +41,7 @@ pub extern "C" fn changeOwner(){
     _change_owner(identity,runtime::get_caller(), new_owner);
 }
 
-fn _change_owner(identity: AccountHash, _actor: AccountHash, new_owner:AccountHash){
+fn _change_owner(identity: AccountHash, actor: AccountHash, new_owner:AccountHash){
     set_key(&owner_key(&identity),new_owner);
 }
 
@@ -75,8 +75,8 @@ pub extern "C" fn call() {
     
 
     let (contract_hash, _) = storage::new_locked_contract(entry_points, None, None, None);
-    runtime::put_key("CasperDIDRegistry2", contract_hash.into());//Name of contract?
-    runtime::put_key("CasperDIDRegistry2_hash", storage::new_uref(contract_hash).into());
+    runtime::put_key("CasperDIDRegistry", contract_hash.into());//Name of contract?
+    runtime::put_key("CasperDIDRegistry_hash", storage::new_uref(contract_hash).into());
 }
 
 fn owner_key(identity: &AccountHash) -> String{
