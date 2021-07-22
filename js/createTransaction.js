@@ -11,20 +11,14 @@ const RuntimeArgs = caspersdk.RuntimeArgs;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
 
-const CONTRACT_NAME = "CasperDIDRegistry2";
+const CONTRACT_NAME = "CasperDIDRegistry3";
 const DEPLOY_NODE_ADDRESS = 'http://128.199.63.141:7777/rpc';
 const DEPLOY_CHAIN_NAME = 'casper-test';
 const DEPLOY_GAS_PRICE = 10;
 const DEPLOY_GAS_PAYMENT = 50000000000;
 const DEPLOY_TTL_MS = 3600000;
-const FUNCTION_NAME = "asd";
 
-
-const transact = async (nodeAddress,pathToPublicKey,pathToPrivateKey,) => {
-    
-};
-
-const main = async () => {
+const changeOwner = async (_identity, _newOwner) => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
@@ -45,12 +39,6 @@ const main = async () => {
     // console.log(contractHashAsByteArray);
 
     // Step 5.0: Form input parametrs.
-    let user1 = Keys.Ed25519.parseKeyFiles(
-        './network_keys/user1/public_key.pem',
-        './network_keys/user1/secret_key.pem'
-    );
-    console.log("user1 acc hash");
-    console.log(user1.accountHash());
 
     // Step 5.1: Form the deploy.
     let deploy = DeployUtil.makeDeploy(
@@ -62,9 +50,67 @@ const main = async () => {
         ),
         DeployUtil.ExecutableDeployItem.newStoredContractByHash(
             contractHashAsByteArray,
-            FUNCTION_NAME,
+            "changeOwner",
             RuntimeArgs.fromMap({
-                identity: CLValueBuilder.byteArray(user1.accountHash()),
+                identity: CLValueBuilder.byteArray(_identity.accountHash()),
+                newOwner: CLValueBuilder.byteArray(_newOwner.accountHash()),
+            })
+        ),
+        DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
+    );
+
+    // Step 5.2: Sign deploy.
+    deploy = client.signDeploy(deploy, keyPairOfContract); 
+    console.log("signed deploy:");
+    console.log(deploy);
+
+    // Step 5.3: Dispatch deploy to node.
+    let deployResult = await client.putDeploy(deploy);
+    console.log("Deploy result");
+    console.log(deployResult);
+};
+
+const asd = async (_identity) => {
+    // Step 1: Set casper node client.
+    const client = new CasperClient(DEPLOY_NODE_ADDRESS);
+    const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
+
+    // Step 2: Set contract operator key pair.
+    const keyPairOfContract = Keys.Ed25519.parseKeyFiles(
+        './network_keys/ippolit/IppolitWallet_public_key.pem',
+        './network_keys/ippolit/IppolitWallet_secret_key.pem'
+    );
+
+    // Step 3: Query node for global state root hash.
+    const stateRootHash = await clientRpc.getStateRootHash();
+
+    // Step 4: Query node for contract hash.
+    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_NAME);
+    const contractHashAsByteArray = [...Buffer.from(contractHash.slice(5), "hex")];
+    // console.log(contractHash);
+    // console.log(contractHashAsByteArray);
+
+    // Step 5.0: Form input parametrs.
+    // let user1 = Keys.Ed25519.parseKeyFiles(
+    //     './network_keys/user1/public_key.pem',
+    //     './network_keys/user1/secret_key.pem'
+    // );
+    console.log("user acc hash");
+    console.log(_identity.accountHash());
+
+    // Step 5.1: Form the deploy.
+    let deploy = DeployUtil.makeDeploy(
+        new DeployUtil.DeployParams(
+            keyPairOfContract.publicKey,
+            DEPLOY_CHAIN_NAME,
+            DEPLOY_GAS_PRICE,
+            DEPLOY_TTL_MS
+        ),
+        DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+            contractHashAsByteArray,
+            "asd",
+            RuntimeArgs.fromMap({
+                identity: CLValueBuilder.byteArray(_identity.accountHash()),
             })
         ),
         DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
@@ -80,6 +126,21 @@ const main = async () => {
     console.log("Deploy result");
     console.log(deployResult);
 
+};
+
+const main = async () => {
+    const ippolit = Keys.Ed25519.parseKeyFiles(
+        './network_keys/ippolit/IppolitWallet_public_key.pem',
+        './network_keys/ippolit/IppolitWallet_secret_key.pem'
+    );
+
+    let user1 = Keys.Ed25519.parseKeyFiles(
+        './network_keys/user1/public_key.pem',
+        './network_keys/user1/secret_key.pem'
+    );
+
+    //await asd(user1);
+    await changeOwner(ippolit,user1);
 };
 
 const getAccountInfo = async (client, stateRootHash, keyPair) => {

@@ -10,11 +10,11 @@ const Keys = caspersdk.Keys;
 
 
 // Path to contract to be installed.
-const PATH_TO_CONTRACT = './target/wasm32-unknown-unknown/release/contract.wasm';//`${process.env.NCTL}/assets/net-1/bin/eco/erc20.wasm`;
+const PATH_TO_CONTRACT = './target/wasm32-unknown-unknown/release/contract.wasm';
 const DEPLOY_NODE_ADDRESS = 'http://128.199.63.141:7777/rpc';
 const DEPLOY_CHAIN_NAME = 'casper-test';
 const DEPLOY_GAS_PRICE = 10;
-const DEPLOY_GAS_PAYMENT = 500000000000; //10000000000 = 1 CSPR
+const DEPLOY_GAS_PAYMENT = 500000000000; //10000000000 = 1 CSPR ?
 const DEPLOY_TTL_MS = 3600000;
 
 const main = async () => {
