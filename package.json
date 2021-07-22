@@ -13,8 +13,8 @@
     "getdeploy": "casper-client get-deploy 21ae214f411c8a273effd283ec88e3664500791da4955aef385bb62a8ec40924 --node-address http://128.199.63.141:7777",
     "getdeploytest": "casper-client get-deploy 5a7177926b32ebe878fef47c8d7cc55cc94cfc126e40076dcf23b5ceda5e6591 --node-address http://localhost:40101",
     "deployContract":"node ./js/deployContract.js",
-    "callasd": "node ./js/createTransaction.js",
-    "readasd": "node ./js/readState.js"
+    "call": "node ./js/createTransaction.js",
+    "read": "node ./js/readState.js"
 
   },
   "repository": {
