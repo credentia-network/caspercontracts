@@ -31,7 +31,7 @@ pub extern "C" fn identityOwner() {
 pub extern "C" fn asd(){
     let identity:AccountHash = runtime::get_named_arg("identity");
     //let acc: AccountHash = identityOwner(identity);
-    set_key("asd", identity/*acc*/);
+    set_key("asd", owner_key(&identity)/*acc*/);
 }
 
 #[no_mangle]
@@ -47,7 +47,6 @@ fn _change_owner(identity: AccountHash, _actor: AccountHash, new_owner:AccountHa
 
 #[no_mangle]
 pub extern "C" fn call() {
-    
     let mut entry_points = EntryPoints::new();
     entry_points.add_entry_point(endpoint(
         "identityOwner",
@@ -75,12 +74,13 @@ pub extern "C" fn call() {
     
 
     let (contract_hash, _) = storage::new_locked_contract(entry_points, None, None, None);
-    runtime::put_key("CasperDIDRegistry2", contract_hash.into());//Name of contract?
-    runtime::put_key("CasperDIDRegistry2_hash", storage::new_uref(contract_hash).into());
+    runtime::put_key("CasperDIDRegistry3", contract_hash.into());//Name of contract?
+    runtime::put_key("CasperDIDRegistry3_hash", storage::new_uref(contract_hash).into());
 }
 
 fn owner_key(identity: &AccountHash) -> String{
-    format!("owner_{}", identity)
+    //return string like this: "owner_4a313b4d53a7fa6bb9e924c1ad499bb083d236b2c58b5e9a64b563518b1dc407"
+    format!("owner_{}", identity) 
 }
 
 fn get_key<T: FromBytes + CLTyped + Default>(name: &str) -> T {
