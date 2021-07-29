@@ -10,11 +10,9 @@ const Keys = caspersdk.Keys;
 const CasperClient = caspersdk.CasperClient;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
-const CONTRACT_NAME = "CasperDIDRegistry3";
-const DEPLOY_HASH = '21ae214f411c8a273effd283ec88e3664500791da4955aef385bb62a8ec40924';
-const DEPLOY_NODE_ADDRESS = 'http://128.199.63.141:7777/rpc';
-const DEPLOY_CHAIN_NAME = 'casper-test';
-
+const { CONTRACT_NAME, 
+        DEPLOY_NODE_ADDRESS,
+        DEPLOY_CHAIN_NAME } = require("./constants");
 
 const readIdentity = async(_identity) => {
     // Step 1: Set casper node client.
@@ -39,11 +37,11 @@ const readIdentity = async(_identity) => {
 
     // Step 5: Query node for token symbol.
     let result = await clientRpc.getBlockState(stateRootHash,contractHash,[key])
-    console.log("asdres:");
+    console.log("owner_identity:");
     console.log(result);
 };
 
-const asd = async () => {
+const asd = async (key) => {
      // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
@@ -60,11 +58,11 @@ const asd = async () => {
     // Step 4: Query node for contract hash.
     const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_NAME);
     
-    let key = "asd";
+    //let key = "asd";
 
     // Step 5: Query node for token symbol.
     let result = await clientRpc.getBlockState(stateRootHash,contractHash,[key])
-    console.log("asdres:");
+    console.log(key+": ");
     console.log(result);
 }
 
@@ -77,10 +75,13 @@ const main = async () => {
         './network_keys/user1/public_key.pem',
         './network_keys/user1/secret_key.pem'
     );
-    console.log("user1 acc hash");
-    console.log(user1.accountHash());
-    await readIdentity(ippolit);
-    //await asd();
+    console.log("ippolit acc hash");
+    console.log(ippolit.accountHash());
+    //await readIdentity(ippolit);
+    await asd("asd1");
+    await asd("asd2");
+    await asd("asd3");
+    await asd("asd4");
    
 };
 

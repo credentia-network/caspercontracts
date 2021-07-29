@@ -11,9 +11,9 @@ const RuntimeArgs = caspersdk.RuntimeArgs;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
 
-const CONTRACT_NAME = "CasperDIDRegistry3";
-const DEPLOY_NODE_ADDRESS = 'http://128.199.63.141:7777/rpc';
-const DEPLOY_CHAIN_NAME = 'casper-test';
+const { CONTRACT_NAME, 
+        DEPLOY_NODE_ADDRESS,
+        DEPLOY_CHAIN_NAME } = require("./constants");
 const DEPLOY_GAS_PRICE = 10;
 const DEPLOY_GAS_PAYMENT = 50000000000;
 const DEPLOY_TTL_MS = 3600000;
@@ -139,8 +139,8 @@ const main = async () => {
         './network_keys/user1/secret_key.pem'
     );
 
-    //await asd(user1);
-    await changeOwner(ippolit,user1);
+    await asd(ippolit);
+    //await changeOwner(ippolit,user1);
 };
 
 const getAccountInfo = async (client, stateRootHash, keyPair) => {
