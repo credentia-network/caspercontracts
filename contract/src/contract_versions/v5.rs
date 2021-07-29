@@ -17,6 +17,8 @@ use contract::{contract_api::{runtime::{self, revert}, storage}, unwrap_or_rever
 use types::{ApiError, CLType, CLTyped, CLValue, Group, Parameter, RuntimeArgs, U256, U512, URef, account::{AccountHash, AccountHashBytes}, bytesrepr::{FromBytes, ToBytes}, contracts::{EntryPoint, EntryPointAccess, EntryPointType, 
             EntryPoints, NamedKeys}, runtime_args};
 
+
+
 #[no_mangle]
 pub extern "C" fn identityOwner() { 
     let identity:AccountHash = runtime::get_named_arg("identity");
@@ -41,25 +43,26 @@ pub extern "C" fn asd(){
     set_key("asd1", runtime::get_caller());
     set_key("asd2", zero_account);
     set_key("asd3", _identity_owner(identity));
+    //NEW!
     let owner: AccountHash = get_key(&owner_key(&identity));
     set_key("asd4", owner);
 }
 
 #[no_mangle]
-pub extern "C" fn changeOwner(){
-    let identity: AccountHash = runtime::get_named_arg("identity");
-    only_owner(identity,runtime::get_caller());
-    let new_owner: AccountHash = runtime::get_named_arg("newOwner");
-    _change_owner(identity, new_owner);
-}
-
 fn only_owner(identity: AccountHash, actor: AccountHash){
     if actor != _identity_owner(identity) {
         runtime::revert(ApiError::PermissionDenied);
     }
 }
+#[no_mangle]
+pub extern "C" fn changeOwner(){
+    let identity: AccountHash = runtime::get_named_arg("identity");
+    only_owner(identity,runtime::get_caller());
+    let new_owner: AccountHash = runtime::get_named_arg("newOwner");
+    _change_owner(identity,runtime::get_caller(), new_owner);
+}
 
-fn _change_owner(identity: AccountHash, new_owner:AccountHash){
+fn _change_owner(identity: AccountHash, _actor: AccountHash, new_owner:AccountHash){
     set_key(&owner_key(&identity),new_owner);
 }
 
@@ -90,7 +93,7 @@ pub extern "C" fn call() {
     ));
     //let mut named_keys = NamedKeys::new();
     
-    let contract_name: &str = "CasperDIDRegistry6" ;
+    let contract_name: &str = "CasperDIDRegistry4" ;
     let contract_hash_name: &str = &format!("{}_{}",contract_name,"hash");
 
     let (contract_hash, _) = storage::new_locked_contract(entry_points, None, None, None);
