@@ -14,7 +14,7 @@ const PATH_TO_CONTRACT = './target/wasm32-unknown-unknown/release/contract.wasm'
 const { CONTRACT_NAME, 
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME } = require("./constants");
-const DEPLOY_GAS_PRICE = 10;
+const DEPLOY_GAS_PRICE = 5;
 const DEPLOY_GAS_PAYMENT = 500000000000; //10000000000 = 10**10 ?= 1 CSPR ?
 const DEPLOY_TTL_MS = 3600000;
 

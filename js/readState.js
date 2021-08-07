@@ -13,6 +13,7 @@ const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 const { CONTRACT_NAME, 
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME } = require("./constants");
+const { CLValue } = require('casper-js-sdk');
 
 const readIdentity = async(_identity) => {
     // Step 1: Set casper node client.
@@ -62,9 +63,18 @@ const asd = async (key) => {
 
     // Step 5: Query node for token symbol.
     let result = await clientRpc.getBlockState(stateRootHash,contractHash,[key])
-    console.log(key+": ");
-    console.log(result);
+    if(key == "asd1"){
+        console.log(key+": ");
+        for(var i in result){
+            console.log(i);
+        }
+        console.log(result["CLValue"]["data"][1]);
+    }else{
+        console.log(key+": ");
+        console.log(result);
+    }
 }
+
 
 const main = async () => {
     const ippolit = Keys.Ed25519.parseKeyFiles(

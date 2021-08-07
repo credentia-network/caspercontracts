@@ -1,6 +1,3 @@
-/**
- * @fileOverview CSPR JS SDK demo: ERC20 - fund users.
- */
 var _ = require('lodash');
 const caspersdk = require("casper-js-sdk");
 const CasperClient = caspersdk.CasperClient;
