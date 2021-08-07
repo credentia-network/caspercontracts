@@ -12,10 +12,9 @@
     "deploytest": "casper-client put-deploy --chain-name casper-net-1 --node-address http://localhost:40101 --secret-key /Users/vchikhladze/caspernode/casper-node/utils/nctl/assets/net-1/users/user-1/secret_key.pem --session-path ./target/wasm32-unknown-unknown/release/contract.wasm --payment-amount 50000000000",
     "getdeploy": "casper-client get-deploy 21ae214f411c8a273effd283ec88e3664500791da4955aef385bb62a8ec40924 --node-address http://128.199.63.141:7777",
     "getdeploytest": "casper-client get-deploy 5a7177926b32ebe878fef47c8d7cc55cc94cfc126e40076dcf23b5ceda5e6591 --node-address http://localhost:40101",
-    "deployContract":"node ./js/deployContract.js",
+    "deployContract": "node ./js/deployContract.js",
     "create": "node ./js/createTransaction.js",
     "read": "node ./js/readState.js"
-
   },
   "repository": {
     "type": "git",
@@ -32,5 +31,9 @@
     "esm": "^3.2.25",
     "lodash": "^4.17.21",
     "sleep": "^6.3.0"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^9.0.3"
   }
 }
