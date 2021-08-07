@@ -19,7 +19,7 @@ use types::{ApiError, BlockTime, CLType, CLTyped, CLValue, Group, Parameter, Run
 
 #[no_mangle]
 pub extern "C" fn asd(){
-    let _identity:AccountHash = runtime::get_named_arg("identity");
+    let identity:AccountHash = runtime::get_named_arg("identity");
     //let zero_account: AccountHash = AccountHash::new([0u8;32]);
     let s = String::from("some cool value");
     let u = 23u64;
@@ -36,7 +36,7 @@ pub extern "C" fn asd(){
 #[no_mangle]
 pub extern "C" fn identityOwner() { 
     let identity:AccountHash = runtime::get_named_arg("identity");
-    
+
     let owner: AccountHash = _identity_owner(identity);
     ret(owner);
 }
@@ -200,7 +200,7 @@ pub extern "C" fn call() {
 
     //let mut named_keys = NamedKeys::new();
     
-    let contract_name: &str = "CasperDIDRegistry8" ;
+    let contract_name: &str = "CasperDIDRegistry7" ;
     let contract_hash_name: &str = &format!("{}_{}",contract_name,"hash");
 
     let (contract_hash, _) = storage::new_locked_contract(entry_points, None, None, None);
@@ -278,3 +278,5 @@ fn endpoint(name: &str, param: Vec<Parameter>, ret: CLType) -> EntryPoint {
         EntryPointType::Contract,
     )
 }
+
+

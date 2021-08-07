@@ -19,7 +19,7 @@ use types::{ApiError, BlockTime, CLType, CLTyped, CLValue, Group, Parameter, Run
 
 #[no_mangle]
 pub extern "C" fn asd(){
-    let _identity:AccountHash = runtime::get_named_arg("identity");
+    let identity:AccountHash = runtime::get_named_arg("identity");
     //let zero_account: AccountHash = AccountHash::new([0u8;32]);
     let s = String::from("some cool value");
     let u = 23u64;
@@ -36,7 +36,7 @@ pub extern "C" fn asd(){
 #[no_mangle]
 pub extern "C" fn identityOwner() { 
     let identity:AccountHash = runtime::get_named_arg("identity");
-    
+
     let owner: AccountHash = _identity_owner(identity);
     ret(owner);
 }
