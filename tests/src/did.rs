@@ -1,3 +1,7 @@
+#![allow(unused_variables)]
+#![allow(unused_imports)]
+#![allow(non_snake_case)]
+
 use casper_engine_test_support::{Code, Hash, SessionBuilder, TestContext, TestContextBuilder};
 use casper_types::{
     account::AccountHash, bytesrepr::FromBytes, runtime_args, AsymmetricType, CLTyped, PublicKey,
@@ -5,16 +9,14 @@ use casper_types::{
 };
 
 
-
 pub mod did_cfg {
-    pub const CONTRACT_NAME: &str = "CasperDIDRegistry";
-
+    pub const CONTRACT_NAME: &str = "CasperDIDRegistry8";
 }
 
 pub struct Sender(pub AccountHash);
 
 pub struct Did {
-    context: TestContext,
+    pub context: TestContext,
     pub ali: AccountHash,
     pub bob: AccountHash,
     pub joe: AccountHash,
@@ -38,8 +40,9 @@ impl Did{
             .with_authorization_keys(&[ali.to_account_hash()])
             .build();
         context.run(session);
+
         Did {
-            context,
+            context: context,
             ali: ali.to_account_hash(),
             bob: bob.to_account_hash(),
             joe: joe.to_account_hash(),
@@ -80,17 +83,39 @@ impl Did{
         self.context.run(session);
     }
 
+    pub fn asd(&mut self,sender: Sender, identity: AccountHash){
+        self.call(
+            sender,
+            "asd",
+            runtime_args! {
+                "identity" => identity,
+            },
+        )
+    }
+    pub fn call_asd(&mut self,
+        asd_key: String) -> AccountHash{
+        self.query_contract(&asd_key).unwrap()
+    }
+
     pub fn identityOwner(&mut self,
-                        identity: AccountHash) -> AccountHash{
+        identity: AccountHash) -> AccountHash{
         let owner_key = format!("owner_{}", identity);
         //println!("{}",owner_key);
-        self.query_contract(&owner_key).unwrap()
+        let result = self.query_contract(&owner_key);
+        if result != None{
+            result.unwrap()
+        }
+        else {
+            AccountHash::new([0u8;32])
+        }
+        //self.query_contract(&owner_key).unwrap()
+
     }
 
     pub fn changeOwner(&mut self,
-                        sender: Sender,
-                        identity: AccountHash, 
-                        newOwner: AccountHash){
+        sender: Sender,
+        identity: AccountHash, 
+        newOwner: AccountHash){
         self.call(
             sender,
             "changeOwner",
@@ -101,18 +126,106 @@ impl Did{
         )
     }
 
-    pub fn asd(&mut self,sender: Sender, identity: AccountHash){
+    
+    pub fn getDelegate(&mut self,
+        identity: AccountHash,
+        delegate_type: AccountHash,
+        delegate: AccountHash) -> u64{
+        let delegate_key = format!("delegate_{}_{}_{}", identity,delegate_type,delegate);
+        //println!("{}",delegate_key);
+        let result = self.query_contract(&delegate_key);
+        if result != None{
+            result.unwrap()
+        }
+        else {
+            0u64
+        }
+    }
+
+
+    pub fn addDelegate(&mut self,
+        sender: Sender,
+        identity: AccountHash, 
+        delegateType: AccountHash,
+        delegate: AccountHash,
+        validity:u64){
+
         self.call(
             sender,
-            "asd",
+            "addDelegate",
             runtime_args! {
                 "identity" => identity,
+                "delegateType" => delegateType,
+                "delegate" => delegate,
+                "validity" => validity,
             },
         )
     }
 
-    pub fn call_asd(&mut self) -> AccountHash{
-        self.query_contract("asd").unwrap()
+    pub fn revokeDelegate(&mut self,
+        sender: Sender,
+        identity: AccountHash, 
+        delegateType: AccountHash,
+        delegate: AccountHash,
+        validity:u64){
+
+        self.call(
+            sender,
+            "revokeDelegate",
+            runtime_args! {
+                "identity" => identity,
+                "delegateType" => delegateType,
+                "delegate" => delegate,
+            },
+        )
+    }
+
+    pub fn getAttribute(&mut self,
+        identity: AccountHash,
+        name: String) -> (String,u64){
+        let attribute_key = format!("attribute_{}_{}",identity,name);
+        //println!("{}",attribute_key);
+        let result:Option<(String,u64)> = self.query_contract(&attribute_key);
+        if result != None{
+            result.unwrap()
+        }
+        else {
+            (String::from("NOoooNE"),0u64)
+        }
+    }
+
+    pub fn setAttribute(&mut self,
+        sender: Sender,
+        identity: AccountHash, 
+        name: String,
+        value: String,
+        validity:u64){
+
+        self.call(
+            sender,
+            "setAttribute",
+            runtime_args! {
+                "identity" => identity,
+                "name" => name,
+                "value" => value,
+                "validity" => validity,
+            },
+        )
+    }
+
+    pub fn revokeAttribute(&mut self,
+        sender: Sender,
+        identity: AccountHash, 
+        name: String){
+
+        self.call(
+            sender,
+            "revokeAttribute",
+            runtime_args! {
+                "identity" => identity,
+                "name" => name,
+            },
+        )
     }
 
 }

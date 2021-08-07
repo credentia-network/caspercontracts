@@ -1,6 +1,7 @@
 #![allow(unused_imports)]
 #![allow(unused_assignments)]
 #![allow(dead_code)]
+#![allow(non_snake_case)]
 
 use casper_engine_test_support::{Code, Hash, SessionBuilder, TestContext, TestContextBuilder};
 use casper_types::{
@@ -8,30 +9,68 @@ use casper_types::{
     RuntimeArgs, U256, U512, CLType,
 };
 use crate::did::{did_cfg, Sender, Did};
+use std::sync::{Arc, Mutex};
+
 
 #[test]
-fn test_change_owner(){
+fn test_1_change_owner(){
     let mut did = Did::deployed();
-    
+
+    let ownerBefore = did.identityOwner(did.ali);
+
+    println!("Owner before: {:?}",ownerBefore);
+
     did.changeOwner(Sender(did.ali),did.ali,did.bob);
 
-    let owner = did.identityOwner(did.ali);
-    println!("Bob: {:?}", did.bob);
-    println!("Result change owner: {:?}",owner);
-    assert_eq!(did.bob, owner);
-    
-    
-    let identity: AccountHash = did.ali;
-    did.asd(Sender(did.ali), identity);
-    let asd = did.call_asd();
-    println!("Result asd: {:?}",asd);
+    let ownerAfter = did.identityOwner(did.ali);
+    println!("Bob:         {:?}", did.bob);
+    println!("Owner after: {:?}",ownerAfter);
+    assert_eq!(did.bob, ownerAfter);
+
 }
 
+#[test]
+fn test_2_add_delegate(){
+    let mut did = Did::deployed();
+    let identity = did.ali;
+    let delegate_type = AccountHash::new([0u8;32]);
+    let delegate = did.bob;
+    let delegateBefore = did.getDelegate(identity, delegate_type, delegate);
+    println!("Delegate before: {}",delegateBefore);
 
+    let validity: u64 = 228;
+    did.addDelegate(Sender(did.ali), identity, delegate_type, delegate, validity);
+    
 
+    let delegateAfter = did.getDelegate(identity, delegate_type, delegate);
+    println!("Delegate after: {}",delegateAfter);
 
+    did.revokeDelegate(Sender(did.ali), identity, delegate_type, delegate, validity);
+    
+    let delegateRevoke = did.getDelegate(identity, delegate_type, delegate);
+    println!("Delegate revoke: {}",delegateRevoke);
 
+}
 
+#[test]
+fn test_3_setAttribute(){
+    let mut did = Did::deployed();
+    let identity = did.ali;
+    let name: &str = "attr";
 
+    let attributeBefore:(String,u64) = did.getAttribute(identity, String::from(name));
+    println!("Attribute before: {} , {}",attributeBefore.0,attributeBefore.1);
 
+    let value = String::from("Some valueable");
+    let validity = 1337u64;
+    did.setAttribute(Sender(did.ali), identity, String::from(name), value, validity);
 
+    let attributeAfter:(String,u64) = did.getAttribute(identity, String::from(name));
+    println!("Attribute before: {} , {}", attributeAfter.0, attributeAfter.1);
+
+    did.revokeAttribute(Sender(did.ali), identity, String::from(name));
+
+    let attributeRevoke:(String,u64) = did.getAttribute(identity, String::from(name));
+    println!("Attribute revoke: {} , {}", attributeRevoke.0, attributeRevoke.1);
+
+}
