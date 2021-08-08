@@ -42,14 +42,17 @@ fn test_2_add_delegate(){
     did.addDelegate(Sender(did.ali), identity, delegate_type, delegate, validity);
     
 
-    let delegateAfter = did.getDelegate(identity, delegate_type, delegate);
+    let delegateAfter: u64 = did.getDelegate(identity, delegate_type, delegate);
     println!("Delegate after: {}",delegateAfter);
+    assert_eq!(validity,delegateAfter);
+
 
     did.revokeDelegate(Sender(did.ali), identity, delegate_type, delegate, validity);
     
     let delegateRevoke = did.getDelegate(identity, delegate_type, delegate);
+    let zero: u64 = 0u64;
     println!("Delegate revoke: {}",delegateRevoke);
-
+    assert_eq!(zero, delegateRevoke);
 }
 
 #[test]
@@ -61,16 +64,19 @@ fn test_3_setAttribute(){
     let attributeBefore:(String,u64) = did.getAttribute(identity, String::from(name));
     println!("Attribute before: {} , {}",attributeBefore.0,attributeBefore.1);
 
-    let value = String::from("Some valueable");
+    let value = "Some valueable";
     let validity = 1337u64;
-    did.setAttribute(Sender(did.ali), identity, String::from(name), value, validity);
+    did.setAttribute(Sender(did.ali), identity, String::from(name), String::from(value), validity);
 
     let attributeAfter:(String,u64) = did.getAttribute(identity, String::from(name));
     println!("Attribute before: {} , {}", attributeAfter.0, attributeAfter.1);
+    assert_eq!(value, attributeAfter.0);
+    assert_eq!(validity, attributeAfter.1);
 
     did.revokeAttribute(Sender(did.ali), identity, String::from(name));
 
     let attributeRevoke:(String,u64) = did.getAttribute(identity, String::from(name));
     println!("Attribute revoke: {} , {}", attributeRevoke.0, attributeRevoke.1);
-
+    assert_eq!(value, &attributeRevoke.0);
+    assert_eq!(0u64,attributeRevoke.1);
 }
