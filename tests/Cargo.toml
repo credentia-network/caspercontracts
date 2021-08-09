@@ -8,6 +8,7 @@ edition = "2018"
 casper-contract = "1.2.0"
 casper-types = "1.2.0"
 casper-engine-test-support = "1.2.0"
+lazy_static = "1.4.0"
 
 [features]
 default = ["casper-contract/std", "casper-types/std", "casper-contract/test-support"]

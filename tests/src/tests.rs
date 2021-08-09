@@ -9,8 +9,8 @@ use casper_types::{
     RuntimeArgs, U256, U512, CLType,
 };
 use crate::did::{did_cfg, Sender, Did};
-use std::sync::{Arc, Mutex};
 
+use std::panic;
 
 #[test]
 fn test_1_change_owner(){
@@ -26,9 +26,21 @@ fn test_1_change_owner(){
     println!("Bob:         {:?}", did.bob);
     println!("Owner after: {:?}",ownerAfter);
     assert_eq!(did.bob, ownerAfter);
+    
+    let identity = did.ali;
+    let delegate_type = AccountHash::new([0u8;32]);
+    let delegate = did.bob;
 
+    let validity: u64 = 228;
+
+    // panic::set_hook(Box::new(|_info| {
+    //     // do nothing
+    // }));
+
+    did.addDelegate(Sender(did.ali), identity, delegate_type, delegate, validity);
+    
+    
 }
-
 #[test]
 fn test_2_add_delegate(){
     let mut did = Did::deployed();

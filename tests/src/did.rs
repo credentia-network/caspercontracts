@@ -2,6 +2,8 @@
 #![allow(unused_imports)]
 #![allow(non_snake_case)]
 
+use std::panic::UnwindSafe;
+
 use casper_engine_test_support::{Code, Hash, SessionBuilder, TestContext, TestContextBuilder};
 use casper_types::{
     account::AccountHash, bytesrepr::FromBytes, runtime_args, AsymmetricType, CLTyped, PublicKey,
@@ -23,6 +25,7 @@ pub struct Did {
 }
 
 impl Did{
+
     pub fn deployed() -> Did {
         let ali = PublicKey::ed25519_from_bytes([3u8; 32]).unwrap();
         let bob = PublicKey::ed25519_from_bytes([6u8; 32]).unwrap();
