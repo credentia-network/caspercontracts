@@ -30,7 +30,7 @@ const main = async () => {
     );
 
     // Step 3.0: get binary of contract.
-    const contractBinary = getContractBinary(PATH_TO_CONTRACT);
+    const contractBinary = new Uint8Array(fs.readFileSync(PATH_TO_CONTRACT, null).buffer);//getContractBinary();
 
     // Step 3: Set contract installation deploy (unsigned).
     let deploy = DeployUtil.makeDeploy(
@@ -59,10 +59,6 @@ const main = async () => {
     const deployHash = await client.putDeploy(deploy);
     console.log("Deploy hash:");
     console.log(deployHash);
-};
-
-const getContractBinary = (pathToBinary) => {
-    return new Uint8Array(fs.readFileSync(pathToBinary, null).buffer);
 };
 
 main();
