@@ -14,7 +14,8 @@
     "getdeploytest": "casper-client get-deploy 5a7177926b32ebe878fef47c8d7cc55cc94cfc126e40076dcf23b5ceda5e6591 --node-address http://localhost:40101",
     "deployContract": "node ./js/deployContract.js",
     "create": "node ./js/createTransaction.js",
-    "read": "node ./js/readState.js"
+    "read": "node ./js/readState.js",
+    "testlocal":"make test"
   },
   "repository": {
     "type": "git",
