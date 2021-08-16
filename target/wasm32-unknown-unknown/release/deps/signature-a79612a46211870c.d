@@ -1,0 +1,11 @@
+/Users/vchikhladze/DApps/casper/erc20/target/wasm32-unknown-unknown/release/deps/signature-a79612a46211870c.rmeta: /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/lib.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/error.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/signature.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/signer.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/verifier.rs
+
+/Users/vchikhladze/DApps/casper/erc20/target/wasm32-unknown-unknown/release/deps/libsignature-a79612a46211870c.rlib: /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/lib.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/error.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/signature.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/signer.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/verifier.rs
+
+/Users/vchikhladze/DApps/casper/erc20/target/wasm32-unknown-unknown/release/deps/signature-a79612a46211870c.d: /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/lib.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/error.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/signature.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/signer.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/verifier.rs
+
+/Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/lib.rs:
+/Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/error.rs:
+/Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/signature.rs:
+/Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/signer.rs:
+/Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/signature-1.2.2/src/verifier.rs:

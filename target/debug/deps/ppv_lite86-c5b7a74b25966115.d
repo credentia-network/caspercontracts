@@ -1,0 +1,11 @@
+/Users/vchikhladze/DApps/casper/erc20/target/debug/deps/ppv_lite86-c5b7a74b25966115.rmeta: /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/lib.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/soft.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/types.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/x86_64/mod.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/x86_64/sse2.rs
+
+/Users/vchikhladze/DApps/casper/erc20/target/debug/deps/libppv_lite86-c5b7a74b25966115.rlib: /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/lib.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/soft.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/types.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/x86_64/mod.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/x86_64/sse2.rs
+
+/Users/vchikhladze/DApps/casper/erc20/target/debug/deps/ppv_lite86-c5b7a74b25966115.d: /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/lib.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/soft.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/types.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/x86_64/mod.rs /Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/x86_64/sse2.rs
+
+/Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/lib.rs:
+/Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/soft.rs:
+/Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/types.rs:
+/Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/x86_64/mod.rs:
+/Users/vchikhladze/.cargo/registry/src/github.com-1ecc6299db9ec823/ppv-lite86-0.2.10/src/x86_64/sse2.rs:
