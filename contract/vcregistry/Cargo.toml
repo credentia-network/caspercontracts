@@ -1,0 +1,19 @@
+[package]
+name = "vcregistry"
+version = "0.1.0"
+authors = ["Maciej Zielinski <maciej@casperlabs.io>"]
+edition = "2018"
+
+[dependencies]
+contract = { package = "casper-contract", version="1.1.1" }
+types = { package = "casper-types", version="1.1.1" }
+
+[[bin]]
+name = "vcregistry"
+path = "src/main.rs"
+bench = false
+doctest = false
+test = false
+
+[features]
+default = ["contract/std", "types/std"]
