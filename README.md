@@ -12,9 +12,32 @@ $ make prepare
 ```bash
 $ make build-contract
 ```
+or
+```
+$ npm run build
+```
+# VCRegistry
+
+## Run transaction script
+```
+npm run issueVC
+``` 
+```
+npm run revokeVC
+```
+```
+npm run reActivateVC
+```
+
+## Run read states scripts
+```
+npm run readVC
+```
 
 ## Test
 Test logic and smart contract.
 ```bash
 $ make test
 ```
+
+

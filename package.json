@@ -15,6 +15,10 @@
     "getdeploytest": "casper-client get-deploy 5a7177926b32ebe878fef47c8d7cc55cc94cfc126e40076dcf23b5ceda5e6591 --node-address http://localhost:40101",
     "deployDid": "node ./js/did/deployDid.js",
     "deployVcregistry": "node ./js/vcregistry/deployVсregistry.js",
+    "readVC": "node ./js/vcregistry/readVC.js",
+    "issueVC":"node ./js/vcregistry/transact_issueVC.js",
+    "revokeVC": "node ./js/vcregistry/transact_revokeVC.js",
+    "reActivateVC": "node ./js/vcregistry/transact_reActivateVC.js",
     "create": "node ./js/createTransaction.js",
     "read": "node ./js/readState.js",
     "testlocal":"make test"

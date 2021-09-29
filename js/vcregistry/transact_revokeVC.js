@@ -15,7 +15,7 @@ const DEPLOY_GAS_PRICE = 10;
 const DEPLOY_GAS_PAYMENT = 50000000000;
 const DEPLOY_TTL_MS = 3600000;
 
-const revokeVC = async (_dataMerkleRoot,) => {
+const revokeVC = async (_dataMerkleRoot) => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
@@ -76,8 +76,8 @@ const main = async () => {
         './network_keys/user1/secret_key.pem'
     );
 
-    let isRevoked = true;
-    await issueVC(ippolit,isRevoked);
+    
+    await revokeVC(ippolit);
 };
 
 const getAccountInfo = async (client, stateRootHash, keyPair) => {

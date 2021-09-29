@@ -16,7 +16,7 @@ const { CONTRANC_VCREGISTRY_NAME,
 const { CLValue } = require('casper-js-sdk');
 
 
-const readVerifiableCredentials = async(dataMerkleRoot)=>{
+const readVerifiableCredentials = async(dataMerkleRoot,index)=>{
         // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
@@ -39,7 +39,6 @@ const readVerifiableCredentials = async(dataMerkleRoot)=>{
     let status_key = "verifiableCredentials_"+Buffer.from(dataMerkleRoot.accountHash()).toString('hex')+"_status";
     let isRevokable_key = "verifiableCredentials_"+Buffer.from(dataMerkleRoot.accountHash()).toString('hex')+"_isRevokable";
     let statusChanges_length_key = "verifiableCredentials_"+Buffer.from(dataMerkleRoot.accountHash()).toString('hex')+"_statusChanges_length";
-    let index = 0;
     let statusChanges_oldStatus_key = "verifiableCredentials_"+Buffer.from(dataMerkleRoot.accountHash()).toString('hex')+"_statusChanges_"+index+"_oldStatus";
     let statusChanges_newStatus_key = "verifiableCredentials_"+Buffer.from(dataMerkleRoot.accountHash()).toString('hex')+"_statusChanges_"+index+"_newStatus";
     let statusChanges_dateChanged_key = "verifiableCredentials_"+Buffer.from(dataMerkleRoot.accountHash()).toString('hex')+"_statusChanges_"+index+"_dateChanged";
@@ -131,7 +130,8 @@ const main = async () => {
         './network_keys/user1/secret_key.pem'
     );
     let dataMerkleRoot = ippolit;
-    await readVerifiableCredentials(dataMerkleRoot);
+    let index = 0;
+    await readVerifiableCredentials(dataMerkleRoot,index);
    
 };
 

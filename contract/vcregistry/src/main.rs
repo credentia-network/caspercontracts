@@ -11,12 +11,14 @@ use alloc::{
     string::String,
 };
 use core::convert::TryInto;
-use std::{io::SeekFrom, thread::AccessError, vec};
+use std::{io::{Read, SeekFrom}, thread::AccessError, vec};
 
 use contract::{contract_api::{runtime::{self, revert}, storage, system::get_auction}, unwrap_or_revert::UnwrapOrRevert};
 
-use types::{ApiError, BlockTime, CLType, CLTyped, CLValue, Group, Parameter, RuntimeArgs, U256, U512, URef, account::{AccountHash, AccountHashBytes}, bytesrepr::{FromBytes, ToBytes, Error}, contracts::{EntryPoint, EntryPointAccess, EntryPointType, 
-            EntryPoints, NamedKeys}, runtime_args};
+use types::{ApiError, BlockTime, CLType, CLTyped, CLValue, Group, Parameter, RuntimeArgs, U256, U512, URef, 
+            account::{AccountHash, AccountHashBytes}, bytesrepr::{FromBytes, ToBytes, Error}, 
+            contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys}, 
+            runtime_args};
 
 
 #[derive(PartialEq)]
@@ -71,7 +73,6 @@ pub extern "C" fn issueVC(){
     if status != VCStatus::NotExists {
         runtime::revert(ApiError::InvalidArgument);
     }
-
     let msgSender: AccountHash = runtime::get_caller();
     set_key(&verifiableCredentials_issuer_key(&dataMerkleRoot), msgSender);
     set_key(&verifiableCredentials_dataMerkleRoot_key(&dataMerkleRoot), dataMerkleRoot);
@@ -82,8 +83,10 @@ pub extern "C" fn issueVC(){
     set_key(&verifiableCredentials_isRevokable_key(&dataMerkleRoot), _isRevokable);
     let length: u64 = 0u64;
     set_key(&verifiableCredentials_statusChanges_length_key(&dataMerkleRoot), length);
-    //ret(true);
-}
+
+    let result:CLValue = CLValue::from_t(true).unwrap();
+    ret(result);
+}   
 
 #[no_mangle]
 pub extern "C" fn revokeVC(){
@@ -97,8 +100,8 @@ pub extern "C" fn revokeVC(){
     if issuer != msgSender {
         runtime::revert(ApiError::PermissionDenied);
     }
-    let status: VCStatus = get_key(&verifiableCredentials_status_key(&dataMerkleRoot));
-    if status != VCStatus::Active {
+    let status: u8 = get_key(&verifiableCredentials_status_key(&dataMerkleRoot));
+    if status != VCStatus::to_bytes(&VCStatus::Active).unwrap()[0] {
         runtime::revert(ApiError::Deserialize);
     }
     set_key(&verifiableCredentials_status_key(&dataMerkleRoot),VCStatus::Revoked);
@@ -111,7 +114,6 @@ pub extern "C" fn revokeVC(){
     set_key(&verifiableCredentials_statusChanges_dateChanged_key(&dataMerkleRoot,index), now);
     set_key(&verifiableCredentials_statusChanges_who_key(&dataMerkleRoot,index), msgSender);
     set_key(&verifiableCredentials_statusChanges_length_key(&dataMerkleRoot), length+1);
-    //ret(true);
 }
 
 #[no_mangle]
@@ -122,8 +124,8 @@ pub extern "C" fn reActivateVC(){
     if issuer != msgSender {
         runtime::revert(ApiError::PermissionDenied);
     }
-    let status: VCStatus = get_key(&verifiableCredentials_status_key(&dataMerkleRoot));
-    if status != VCStatus::Revoked {
+    let status: u8 = get_key(&verifiableCredentials_status_key(&dataMerkleRoot));
+    if status != VCStatus::to_bytes(&VCStatus::Revoked).unwrap()[0] {
         runtime::revert(    ApiError::None);
     }
 
@@ -137,8 +139,8 @@ pub extern "C" fn reActivateVC(){
     set_key(&verifiableCredentials_statusChanges_dateChanged_key(&dataMerkleRoot,index), now);
     set_key(&verifiableCredentials_statusChanges_who_key(&dataMerkleRoot,index), msgSender);
     set_key(&verifiableCredentials_statusChanges_length_key(&dataMerkleRoot), length+1);
-
-    //ret(true);
+    // let result: bool = true;
+    // ret(result);
 }
 
 #[no_mangle]
@@ -170,15 +172,13 @@ pub extern "C" fn call() {
     
     //let mut named_keys = NamedKeys::new();
     
-    let contract_name: &str = "CasperVCRegistry2";
+    let contract_name: &str = "CasperVCRegistry5";
     let contract_hash_name: &str = &format!("{}_{}",contract_name,"hash");
 
     let (contract_hash, _) = storage::new_locked_contract(entry_points, None, None, None);
     runtime::put_key(contract_name, contract_hash.into());
     runtime::put_key(contract_hash_name, storage::new_uref(contract_hash).into());
 }
-
-
 
 fn verifiableCredentials_issuer_key(dataMerkleRoot: &AccountHash) -> String{
     format!("verifiableCredentials_{}_issuer", &dataMerkleRoot)
