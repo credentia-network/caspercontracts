@@ -8,14 +8,15 @@ const RuntimeArgs = caspersdk.RuntimeArgs;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
 
-const { CONTRACT_VCREGISTRY_NAME, 
+const { CONTRANC_DEMOVCREGISTRY_NAME, 
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME } = require("../constants");
+const { CLList } = require('casper-js-sdk');
 const DEPLOY_GAS_PRICE = 10;
 const DEPLOY_GAS_PAYMENT = 50000000000;
 const DEPLOY_TTL_MS = 3600000;
 
-const issueVC = async (_dataMerkleRoot, _isRevokable) => {
+const sendVPRequest = async (_schemaHash, _requestedFields, _to) => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
@@ -30,10 +31,11 @@ const issueVC = async (_dataMerkleRoot, _isRevokable) => {
     const stateRootHash = await clientRpc.getStateRootHash();
 
     // Step 4: Query node for contract hash.
-    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_VCREGISTRY_NAME);
+    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRANC_DEMOVCREGISTRY_NAME);
     const contractHashAsByteArray = [...Buffer.from(contractHash.slice(5), "hex")];
 
     // Step 5.0: Form input parametrs.
+    
 
     // Step 5.1: Form the deploy.
     let deploy = DeployUtil.makeDeploy(
@@ -45,10 +47,11 @@ const issueVC = async (_dataMerkleRoot, _isRevokable) => {
         ),
         DeployUtil.ExecutableDeployItem.newStoredContractByHash(
             contractHashAsByteArray,
-            "issueVC",
+            "sendVPRequest",
             RuntimeArgs.fromMap({
-                _dataMerkleRoot: CLValueBuilder.byteArray(_dataMerkleRoot.accountHash()),
-                _isRevokable: CLValueBuilder.bool(_isRevokable),
+                _schemaHash: CLValueBuilder.byteArray(_dataMerkleRoot.accountHash()),
+                _requestedFields: _requestedFields,
+                _to: CLValueBuilder.byteArray(_holder.accountHash()),
             })
         ),
         DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
@@ -77,8 +80,10 @@ const main = async () => {
         './network_keys/user1/secret_key.pem'
     );
 
-    let isRevoked = true;
-    await issueVC(ippolit,isRevoked);
+    let schemaHash = ippolit; 
+    let requestedFields = new CLList([new CLU32(1), new CLU32(2), new CLU32(3)]);
+    let to = ippolit;
+    await sendVPRequest(schemaHash, requestedFields, to);
 };
 
 const getAccountInfo = async (client, stateRootHash, keyPair) => {

@@ -84,8 +84,8 @@ pub extern "C" fn issueVC(){
     let length: u64 = 0u64;
     set_key(&verifiableCredentials_statusChanges_length_key(&dataMerkleRoot), length);
 
-    let result:CLValue = CLValue::from_t(true).unwrap();
-    ret(result);
+    // let result:CLValue = CLValue::from_t(true).unwrap();
+    // ret(result);
 }   
 
 #[no_mangle]

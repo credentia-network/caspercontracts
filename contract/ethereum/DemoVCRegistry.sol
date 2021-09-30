@@ -43,11 +43,11 @@ contract DemoVCRegistry is VCRegistry {
     supportedSchemas[_schemaHash] = _enabled;
   }
 
-  //VC Operations
-  function issueVC(bytes32 _dataMerkleRoot, bool _isRevokable) public virtual override returns (bool){
-    require (false, "Please use issueDemoVC function");
-    return false;
-  }
+  // //VC Operations
+  // function issueVC(bytes32 _dataMerkleRoot, bool _isRevokable) public virtual override returns (bool){
+  //   require (false, "Please use issueDemoVC function");
+  //   return false;
+  // }
 
   function issueDemoVC(bytes32 _dataMerkleRoot,  bool _isRevokable, address _holder, bytes32 _ipfsHash, bytes32 _schemaHash) public returns (bool){
       require(super.issueVC(_dataMerkleRoot, _isRevokable), "VC not issued");
@@ -90,7 +90,7 @@ contract DemoVCRegistry is VCRegistry {
       verifiableCredentials[_dataMerkleRoot].isRevokable,
       demoVCRegistry[_dataMerkleRoot].holder,
       demoVCRegistry[_dataMerkleRoot].ipfsHash,
-      demoVCRegistry[_dataMerkleRoot]._schemaHash
+      demoVCRegistry[_dataMerkleRoot].schemaHash
     );
   }
 
@@ -108,7 +108,7 @@ contract DemoVCRegistry is VCRegistry {
       verifiableCredentials[_dataMerkleRoot].isRevokable,
       demoVCRegistry[_dataMerkleRoot].holder,
       demoVCRegistry[_dataMerkleRoot].ipfsHash,
-      demoVCRegistry[_dataMerkleRoot]._schemaHash
+      demoVCRegistry[_dataMerkleRoot].schemaHash
     );
   }
 

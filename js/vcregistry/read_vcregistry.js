@@ -10,7 +10,7 @@ const Keys = caspersdk.Keys;
 const CasperClient = caspersdk.CasperClient;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
-const { CONTRANC_VCREGISTRY_NAME, 
+const { CONTRACT_VCREGISTRY_NAME, 
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME } = require("../constants");
 const { CLValue } = require('casper-js-sdk');
@@ -31,7 +31,7 @@ const readVerifiableCredentials = async(dataMerkleRoot,index)=>{
     const stateRootHash = await clientRpc.getStateRootHash();
 
     // Step 4: Query node for contract hash.
-    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRANC_VCREGISTRY_NAME);
+    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_VCREGISTRY_NAME);
 
     let issuer_key = "verifiableCredentials_"+Buffer.from(dataMerkleRoot.accountHash()).toString('hex')+"_issuer";
     let dataMerkleRoot_key = "verifiableCredentials_"+Buffer.from(dataMerkleRoot.accountHash()).toString('hex')+"_dataMerkleRoot";
