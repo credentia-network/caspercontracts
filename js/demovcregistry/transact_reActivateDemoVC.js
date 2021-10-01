@@ -8,7 +8,7 @@ const RuntimeArgs = caspersdk.RuntimeArgs;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
 
-const { CONTRANC_DEMOVCREGISTRY_NAME, 
+const { CONTRACT_DEMOVCREGISTRY_NAME, 
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME } = require("../constants");
 const DEPLOY_GAS_PRICE = 10;
@@ -30,7 +30,7 @@ const reActivateVC = async (_dataMerkleRoot) => {
     const stateRootHash = await clientRpc.getStateRootHash();
 
     // Step 4: Query node for contract hash.
-    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRANC_DEMOVCREGISTRY_NAME);
+    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_DEMOVCREGISTRY_NAME);
     const contractHashAsByteArray = [...Buffer.from(contractHash.slice(5), "hex")];
 
     // Step 5.0: Form input parametrs.

@@ -57,13 +57,28 @@ enum DemoRegistryError{
     MsgSenderNotRegistryOwner = 0,
     StatusShouldBeNotExist = 1,
     SchemaNotSupported = 2,
-    ReceiverIsNotMsgSender = 3 ,
+    ReceiverIsNotMsgSender = 3,
+    RegistryOwnerIsSet = 4,
+
 
 }
 
 impl From<DemoRegistryError> for ApiError {
     fn from(error: DemoRegistryError) -> Self {
         ApiError::User(error as u16)
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn initialize(){
+    let registryOwner: AccountHash = get_key(&registrOwner_key());
+    let zeroAccount: AccountHash = AccountHash::new([0u8;32]);
+    if registryOwner == zeroAccount {
+        let msgSender: AccountHash = runtime::get_caller();
+        set_key(&registrOwner_key(), msgSender);
+    }
+    else {
+        revert(DemoRegistryError::RegistryOwnerIsSet);
     }
 }
 
@@ -123,49 +138,6 @@ pub extern "C" fn issueDemoVC(){
 }
 
 #[no_mangle]
-pub extern "C" fn sendVPRequest(){
-    let schemaHash: AccountHash = runtime::get_named_arg("_schemaHash");
-    let requestedFields: Vec<u32> = runtime::get_named_arg("_requestedFields");
-    let to: AccountHash = runtime::get_named_arg("_to");
-    let msgSender: AccountHash = runtime::get_caller();
-
-    let requestCounter: u64 = get_key(&requestCounter_key());
-    let nextCounterValue = requestCounter + 1;
-    set_key(&requestCounter_key(), nextCounterValue);
-
-    set_key(&vpRequests_schemaHash_key(nextCounterValue), schemaHash);
-    set_key(&vpRequests_requestedSchemaFields_key(nextCounterValue), requestedFields);
-    let responceIPFSHash: AccountHash = AccountHash::new([0u8;32]); 
-    set_key(&vpRequests_responseIPFSHash_key(nextCounterValue),responceIPFSHash);
-    set_key(&vpRequests_receiver_key(nextCounterValue), to);
-
-    let requestsSent_length: u64 = get_key(&requestsSent_length_key( &msgSender));
-    set_key(&requestsSent_key(&msgSender,requestsSent_length),nextCounterValue);
-    let nextRequestsSent_length:u64 = requestsSent_length + 1;
-    set_key(&requestsSent_length_key( &msgSender), nextRequestsSent_length);
-
-    let requestsReceived_length: u64 = get_key(&requestsReceived_length_key(&to));
-    set_key(&requestsReceived_key(&to,requestsReceived_length), nextCounterValue);
-    let nextRequestsReceived_length: u64 = requestsReceived_length + 1;
-    set_key(&requestsReceived_length_key(&to), nextRequestsReceived_length);
-
-}
-
-#[no_mangle]
-pub extern "C" fn registerVPResponse(){
-    let vpRequestID:u64 = runtime::get_named_arg("_vpRequestID");
-    let ipfsHash:AccountHash = runtime::get_named_arg("_ipfsHash");
-
-    let msgSender: AccountHash = runtime::get_caller();
-    let receiver: AccountHash = get_key(&vpRequests_receiver_key(vpRequestID));
-    if receiver != msgSender {
-        revert(DemoRegistryError::ReceiverIsNotMsgSender);
-    }
-    set_key(&vpRequests_responseIPFSHash_key(vpRequestID), ipfsHash);
-    
-}
-
-#[no_mangle]
 pub extern "C" fn revokeVC(){
     let dataMerkleRoot: AccountHash = runtime::get_named_arg("_dataMerkleRoot");
     let isRevokable: bool = get_key(&verifiableCredentials_isRevokable_key(&dataMerkleRoot));
@@ -220,9 +192,57 @@ pub extern "C" fn reActivateVC(){
 }
 
 #[no_mangle]
+pub extern "C" fn sendVPRequest(){
+    let schemaHash: AccountHash = runtime::get_named_arg("_schemaHash");
+    let requestedFields: Vec<u32> = runtime::get_named_arg("_requestedFields");
+    let to: AccountHash = runtime::get_named_arg("_to");
+    let msgSender: AccountHash = runtime::get_caller();
+
+    let requestCounter: u64 = get_key(&requestCounter_key());
+    let nextCounterValue = requestCounter + 1;
+    set_key(&requestCounter_key(), nextCounterValue);
+
+    set_key(&vpRequests_schemaHash_key(nextCounterValue), schemaHash);
+    set_key(&vpRequests_requestedSchemaFields_key(nextCounterValue), requestedFields);
+    let responceIPFSHash: AccountHash = AccountHash::new([0u8;32]); 
+    set_key(&vpRequests_responseIPFSHash_key(nextCounterValue),responceIPFSHash);
+    set_key(&vpRequests_receiver_key(nextCounterValue), to);
+
+    let requestsSent_length: u64 = get_key(&requestsSent_length_key( &msgSender));
+    set_key(&requestsSent_key(&msgSender,requestsSent_length),nextCounterValue);
+    let nextRequestsSent_length:u64 = requestsSent_length + 1;
+    set_key(&requestsSent_length_key( &msgSender), nextRequestsSent_length);
+
+    let requestsReceived_length: u64 = get_key(&requestsReceived_length_key(&to));
+    set_key(&requestsReceived_key(&to,requestsReceived_length), nextCounterValue);
+    let nextRequestsReceived_length: u64 = requestsReceived_length + 1;
+    set_key(&requestsReceived_length_key(&to), nextRequestsReceived_length);
+
+}
+
+#[no_mangle]
+pub extern "C" fn registerVPResponse(){
+    let vpRequestID:u64 = runtime::get_named_arg("_vpRequestID");
+    let ipfsHash:AccountHash = runtime::get_named_arg("_ipfsHash");
+
+    let msgSender: AccountHash = runtime::get_caller();
+    let receiver: AccountHash = get_key(&vpRequests_receiver_key(vpRequestID));
+    if receiver != msgSender {
+        revert(DemoRegistryError::ReceiverIsNotMsgSender);
+    }
+    set_key(&vpRequests_responseIPFSHash_key(vpRequestID), ipfsHash);
+    
+}
+
+#[no_mangle]
 pub extern "C" fn call() {
     
     let mut entry_points = EntryPoints::new();
+    entry_points.add_entry_point(endpoint(
+        "initialize",
+        vec![],
+        CLType::Unit,
+    ));
     entry_points.add_entry_point(endpoint(
         "setSchema",
         vec![
@@ -242,7 +262,20 @@ pub extern "C" fn call() {
         ],
         CLType::Unit,
     ));
-   
+    entry_points.add_entry_point(endpoint(
+        "revokeVC",
+        vec![
+            Parameter::new("_dataMerkleRoot",AccountHash::cl_type()),
+        ],
+        CLType::Unit,
+    ));
+    entry_points.add_entry_point(endpoint(
+        "reActivateVC",
+        vec![
+            Parameter::new("_dataMerkleRoot",AccountHash::cl_type()),
+        ],
+        CLType::Unit,
+    ));
     entry_points.add_entry_point(endpoint(
         "sendVPRequest",
         vec![
@@ -261,27 +294,17 @@ pub extern "C" fn call() {
         CLType::Unit
     ));
 
-    entry_points.add_entry_point(endpoint(
-        "revokeVC",
-        vec![
-            Parameter::new("_dataMerkleRoot",AccountHash::cl_type()),
-        ],
-        CLType::Unit,
-    ));
-    entry_points.add_entry_point(endpoint(
-        "reActivateVC",
-        vec![
-            Parameter::new("_dataMerkleRoot",AccountHash::cl_type()),
-        ],
-        CLType::Unit,
-    ));
     
-    let contract_name: &str = "CasperDemoVCRegistry4";
+    // let mut named_keys = NamedKeys::new();
+    // named_keys.insert("registryOwner".to_string(), storage::new_uref(msgSender).into());
+
+    let contract_name: &str = "CasperDemoVCRegistry11";
     let contract_hash_name: &str = &format!("{}_{}",contract_name,"hash");
 
     let (contract_hash, _) = storage::new_locked_contract(entry_points, None, None, None);
     runtime::put_key(contract_name, contract_hash.into());
     runtime::put_key(contract_hash_name, storage::new_uref(contract_hash).into());
+
 }
 
 fn verifiableCredentials_issuer_key(dataMerkleRoot: &AccountHash) -> String{
@@ -349,11 +372,11 @@ fn issuedVCs_key(issuer: &AccountHash, index: u64) -> String {
 }
 
 fn holderVCs_length_key(holder: &AccountHash) -> String{
-    format!("issuedVCs_{}_length", &holder)
+    format!("holderVCs_{}_length", &holder)
 }
 
 fn holderVCs_key(holder: &AccountHash, index: u64) -> String {
-    format!("issuedVCs_{}_{}", &holder, index)
+    format!("holderVCs_{}_{}", &holder, index)
 }
 
 fn supportedSchemas_key(schema: &AccountHash) -> String {
@@ -367,7 +390,6 @@ fn requestCounter_key() -> String{
 fn vpRequests_schemaHash_key(requestIndex: u64) -> String{
     format!("vpRequests_{}_schemaHash",requestIndex)
 }
-
 
 fn vpRequests_requestedSchemaFields_key(requestIndex: u64) -> String{
     format!("vpRequests_{}_requestedSchemaFields", requestIndex)
@@ -390,7 +412,7 @@ fn requestsSent_key(account: &AccountHash,requestIndex: u64) -> String {
 }
 
 fn requestsReceived_length_key(account: &AccountHash) -> String {
-    format!("requestsReceived_{}",account)
+    format!("requestsReceived_{}_length",account)
 }
 
 fn requestsReceived_key(account: &AccountHash,requestIndex: u64) -> String {

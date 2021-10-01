@@ -43,6 +43,7 @@ const main = async () => {
         DeployUtil.ExecutableDeployItem.newModuleBytes(
             contractBinary,
             RuntimeArgs.fromMap({
+                //msgSender: CLValueBuilder.byteArray(keyPairOfContract.accountHash()),
                 // token_decimals: CLValueBuilder.u8(TOKEN_DECIMALS),
                 // token_name: CLValueBuilder.string(TOKEN_NAME),
                 // token_symbol: CLValueBuilder.string(TOKEN_SYMBOL),

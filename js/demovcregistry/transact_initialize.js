@@ -15,7 +15,7 @@ const DEPLOY_GAS_PRICE = 10;
 const DEPLOY_GAS_PAYMENT = 50000000000;
 const DEPLOY_TTL_MS = 3600000;
 
-const issueDemoVC = async (_dataMerkleRoot, _isRevokable, _holder, _ipfsHash, _schemaHash) => {
+const initialize = async () => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
@@ -45,13 +45,8 @@ const issueDemoVC = async (_dataMerkleRoot, _isRevokable, _holder, _ipfsHash, _s
         ),
         DeployUtil.ExecutableDeployItem.newStoredContractByHash(
             contractHashAsByteArray,
-            "issueDemoVC",
+            "initialize",
             RuntimeArgs.fromMap({
-                _dataMerkleRoot: CLValueBuilder.byteArray(_dataMerkleRoot.accountHash()),
-                _isRevokable: CLValueBuilder.bool(_isRevokable),
-                _holder: CLValueBuilder.byteArray(_holder.accountHash()),
-                _ipfsHash: CLValueBuilder.byteArray(_ipfsHash.accountHash()),
-                _schemaHash: CLValueBuilder.byteArray(_schemaHash.accountHash()),
             })
         ),
         DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
@@ -80,13 +75,7 @@ const main = async () => {
         './network_keys/user1/secret_key.pem'
     );
 
-    
-    let dataMerkleRoot = ippolit;
-    let isRevoked = true; 
-    let holder = ippolit;
-    let ipfsHash = ippolit;
-    let schemaHash = ippolit;
-    await issueDemoVC(dataMerkleRoot,isRevoked,holder,ipfsHash,schemaHash);
+    await initialize();
 };
 
 const getAccountInfo = async (client, stateRootHash, keyPair) => {
