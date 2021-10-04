@@ -2,9 +2,9 @@ prepare:
 	rustup target add wasm32-unknown-unknown
 
 build-contract:
-	cargo build --release -p did --target wasm32-unknown-unknown
-	cargo build --release -p vcregistry --target wasm32-unknown-unknown
-	cargo build --release -p demovcregistry --target wasm32-unknown-unknown
+	cargo +nightly build --release -p did --target wasm32-unknown-unknown
+	cargo +nightly build --release -p vcregistry --target wasm32-unknown-unknown
+	cargo +nightly build --release -p demovcregistry --target wasm32-unknown-unknown
 
 test-only:
 	cargo test -p tests -- --nocapture --test-threads 1
