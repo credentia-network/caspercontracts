@@ -47,73 +47,73 @@ const readVerifiableCredentials = async(dataMerkleRoot,index)=>{
     // Step 5: Query node for value by key.
     try{
         let issuer = await clientRpc.getBlockState(stateRootHash,contractHash,[issuer_key]);
-        console.log("issuer:");
+        console.log("verifiable_credentials issuer:");
         console.log(issuer);
     }catch{
-        console.log("issuer doesnt instantiated");
+        console.log("verifiable_credentials issuer doesnt instantiated");
     }
     try{
         let dataMerkleRoot = await clientRpc.getBlockState(stateRootHash,contractHash,[dataMerkleRoot_key]);
-        console.log("dataMerkleRoot:");
+        console.log("verifiable_credentials dataMerkleRoot:");
         console.log(dataMerkleRoot);
     }catch{
-        console.log("dataMerkleRoot doesnt instantiated");
+        console.log("verifiable_credentials dataMerkleRoot doesnt instantiated");
     }
     try{
         let dateIssued = await clientRpc.getBlockState(stateRootHash,contractHash,[dateIssued_key]);
-        console.log("dateIssued:");
+        console.log("verifiable_credentials issuer dateIssued:");
         console.log(dateIssued);
     }catch{
-        console.log("dateIssued doesnt instantiated");
+        console.log("verifiable_credentials issuer dateIssued doesnt instantiated");
     }
     try{
         let status = await clientRpc.getBlockState(stateRootHash,contractHash,[status_key]);
-        console.log("status:");
+        console.log("verifiable_credentials issuer status:");
         console.log(status);
     }catch{
-        console.log("status doesnt instantiated");
+        console.log("verifiable_credentials issuer status doesnt instantiated");
     }
     try{ 
         let isRevokable = await clientRpc.getBlockState(stateRootHash,contractHash,[isRevokable_key]);
-        console.log("isRevokable:");
+        console.log("verifiable_credentials issuer isRevokable:");
         console.log(isRevokable);
     }catch{
-        console.log("isRevokable doesnt instantiated");
+        console.log("verifiable_credentials issuer isRevokable doesnt instantiated");
     }
     try{
         let statusChanges_length = await clientRpc.getBlockState(stateRootHash,contractHash,[statusChanges_length_key]);
-        console.log("statusChanges_length:");
+        console.log("verifiable_credentials issuer statusChanges_length:");
         console.log(statusChanges_length);
     }catch{
-        console.log("statusChanges_length doesnt instantiated");
+        console.log("verifiable_credentials issuer statusChanges_length doesnt instantiated");
     }
     try{
         let statusChanges_oldStatus = await clientRpc.getBlockState(stateRootHash,contractHash,[statusChanges_oldStatus_key]);
-        console.log("statusChanges_oldStatus:");
+        console.log("verifiable_credentials issuer statusChanges_oldStatus:");
         console.log(statusChanges_oldStatus);
     }catch{
-        console.log("statusChanges_oldStatus doesnt instantiated");
+        console.log("verifiable_credentials issuer statusChanges_oldStatus doesnt instantiated");
     }
     try{
         let statusChanges_newStatus = await clientRpc.getBlockState(stateRootHash,contractHash,[statusChanges_newStatus_key]);
-        console.log("statusChanges_newStatus:");
+        console.log("verifiable_credentials issuer statusChanges_newStatus:");
         console.log(statusChanges_newStatus);
     }catch{
-        console.log("statusChanges_newStatus doesnt instantiated");
+        console.log("verifiable_credentials issuer statusChanges_newStatus doesnt instantiated");
     }
     try{
         let statusChanges_dateChanged = await clientRpc.getBlockState(stateRootHash,contractHash,[statusChanges_dateChanged_key]);
-        console.log("statusChanges_dateChanged:");
+        console.log("verifiable_credentials issuer statusChanges_dateChanged:");
         console.log(statusChanges_dateChanged);
     }catch{
-        console.log("statusChanges_dateChanged doesnt instantiated");
+        console.log("verifiable_credentials issuer statusChanges_dateChanged doesnt instantiated");
     }
     try{
         let statusChanges_who = await clientRpc.getBlockState(stateRootHash,contractHash,[statusChanges_who_key]);
-        console.log("statusChanges_who:");
+        console.log("verifiable_credentials issuer statusChanges_who:");
         console.log(statusChanges_who);
     }catch{
-        console.log("statusChanges_who doesnt instantiated");
+        console.log("verifiable_credentials issuer statusChanges_who doesnt instantiated");
     }
     
 }
@@ -169,21 +169,21 @@ const readDemoVCRegistry = async(dataMerkleRoot) =>{
 
     try{
         let demoVCRegistry_holder = await clientRpc.getBlockState(stateRootHash,contractHash,[demoVCRegistry_holder_key]);
-        console.log("holder:");
+        console.log("demoVCRegistry_holder:");
         console.log(demoVCRegistry_holder);
     }catch{
         console.log("demoVCRegistry_holder doesnt instantiated");
     }
     try{
         let demoVCRegistry_ipfsHash = await clientRpc.getBlockState(stateRootHash,contractHash,[demoVCRegistry_ipfsHash_key]);
-        console.log("ipfs hash:");
+        console.log("demoVCRegistry_ipfsHash:");
         console.log(demoVCRegistry_ipfsHash);
     }catch{
         console.log("demoVCRegistry_ipfsHash doesnt instantiated");
     }
     try{
         let demoVCRegistry_schemaHash = await clientRpc.getBlockState(stateRootHash,contractHash,[demoVCRegistry_schemaHash_key]);
-        console.log("ipfs hash:");
+        console.log("demoVCRegistry_schemaHash:");
         console.log(demoVCRegistry_schemaHash);
     }catch{
         console.log("demoVCRegistry_schemaHash doesnt instantiated");
@@ -208,8 +208,8 @@ const readIssuedVCs = async(issuer,index) =>{
      // Step 4: Query node for contract hash.
      const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_DEMOVCREGISTRY_NAME);
  
-     let issuedVCs_length_key = "issuedVCs_"+Buffer.from(dataMerkleRoot.accountHash()).toString('hex')+"_length";
-     let issuedVCs_key = "issuedVCs_"+Buffer.from(dataMerkleRoot.accountHash()).toString('hex')+"_"+index;
+     let issuedVCs_length_key = "issuedVCs_"+Buffer.from(issuer.accountHash()).toString('hex')+"_length";
+     let issuedVCs_key = "issuedVCs_"+Buffer.from(issuer.accountHash()).toString('hex')+"_"+index;
  
     try{
         let issuedVCs_length = await clientRpc.getBlockState(stateRootHash,contractHash,[issuedVCs_length_key]);
@@ -245,8 +245,8 @@ const holderVCs = async(issuer,index) =>{
     // Step 4: Query node for contract hash.
     const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_DEMOVCREGISTRY_NAME);
 
-    let holderVCs_length_key = "holderVCs_"+Buffer.from(dataMerkleRoot.accountHash()).toString('hex')+"_length";
-    let holderVCs_key = "holderVCs_"+Buffer.from(dataMerkleRoot.accountHash()).toString('hex')+"_"+index;
+    let holderVCs_length_key = "holderVCs_"+Buffer.from(issuer.accountHash()).toString('hex')+"_length";
+    let holderVCs_key = "holderVCs_"+Buffer.from(issuer.accountHash()).toString('hex')+"_"+index;
 
     try{
         let holderVCs_length = await clientRpc.getBlockState(stateRootHash,contractHash,[holderVCs_length_key]);
@@ -281,7 +281,7 @@ const supportedSchemas = async(schema) =>{
     // Step 4: Query node for contract hash.
     const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_DEMOVCREGISTRY_NAME);
 
-    let supportedSchemas_key = "supportedSchemas_"+Buffer.from(dataMerkleRoot.accountHash()).toString('hex');
+    let supportedSchemas_key = "supportedSchemas_"+Buffer.from(schema.accountHash()).toString('hex');
 
     try{
         let supportedSchemas = await clientRpc.getBlockState(stateRootHash,contractHash,[supportedSchemas_key]);
@@ -454,13 +454,25 @@ const main = async () => {
         './network_keys/user1/public_key.pem',
         './network_keys/user1/secret_key.pem'
     );
-    console.log(ippolit.accountHash())
+    console.log("ippolit acc hash:");
+    console.log(ippolit.accountHash());
     let dataMerkleRoot = ippolit;
     let index = 0;
-    //await readVerifiableCredentials(dataMerkleRoot,index);
+    await readVerifiableCredentials(dataMerkleRoot,index);
     await readRegistryOwner();
-    //await readDemoVCRegistry(dataMerkleRoot);
-    
+    await readDemoVCRegistry(dataMerkleRoot);
+    let issuer = ippolit;
+    await readIssuedVCs(issuer,index);
+    await holderVCs(issuer,index);
+    let schema = ippolit;
+    await supportedSchemas(schema);
+    await readRerequestCounter();
+    let requestIndex = 0;
+    await readVpRequest(requestIndex);
+    let account = ippolit;
+    await readRequestsSent(account,requestIndex);
+    await readRequestsReceived(account,requestIndex);
+   
 };
  
  const getStateKeyValue = async (client, stateRootHash, stateKey, statePath) => {

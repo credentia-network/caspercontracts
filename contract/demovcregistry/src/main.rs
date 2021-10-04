@@ -298,7 +298,7 @@ pub extern "C" fn call() {
     // let mut named_keys = NamedKeys::new();
     // named_keys.insert("registryOwner".to_string(), storage::new_uref(msgSender).into());
 
-    let contract_name: &str = "CasperDemoVCRegistry11";
+    let contract_name: &str = "CasperDemoVCRegistry12";
     let contract_hash_name: &str = &format!("{}_{}",contract_name,"hash");
 
     let (contract_hash, _) = storage::new_locked_contract(entry_points, None, None, None);

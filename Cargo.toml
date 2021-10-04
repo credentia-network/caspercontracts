@@ -1,7 +1,9 @@
 [workspace]
 
 members = [
-    "contract",
+    "contract/did",
+    "contract/vcregistry",
+    "contract/demovcregistry",
 	"tests"
 ]
 

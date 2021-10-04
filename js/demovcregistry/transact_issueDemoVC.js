@@ -80,7 +80,6 @@ const main = async () => {
         './network_keys/user1/secret_key.pem'
     );
 
-    
     let dataMerkleRoot = ippolit;
     let isRevoked = true; 
     let holder = ippolit;
