@@ -467,9 +467,10 @@ const main = async () => {
     let schema = ippolit;
     await supportedSchemas(schema);
     await readRerequestCounter();
-    let requestIndex = 0;
+    let requestIndex = 1;
     await readVpRequest(requestIndex);
     let account = ippolit;
+    requestIndex = 0;
     await readRequestsSent(account,requestIndex);
     await readRequestsReceived(account,requestIndex);
    

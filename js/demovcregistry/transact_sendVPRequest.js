@@ -11,7 +11,7 @@ const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 const { CONTRACT_DEMOVCREGISTRY_NAME, 
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME } = require("../constants");
-const { CLList } = require('casper-js-sdk');
+const { CLList, CLU32 } = require('casper-js-sdk');
 const DEPLOY_GAS_PRICE = 10;
 const DEPLOY_GAS_PAYMENT = 50000000000;
 const DEPLOY_TTL_MS = 3600000;
@@ -49,9 +49,9 @@ const sendVPRequest = async (_schemaHash, _requestedFields, _to) => {
             contractHashAsByteArray,
             "sendVPRequest",
             RuntimeArgs.fromMap({
-                _schemaHash: CLValueBuilder.byteArray(_dataMerkleRoot.accountHash()),
+                _schemaHash: CLValueBuilder.byteArray(_schemaHash.accountHash()),
                 _requestedFields: _requestedFields,
-                _to: CLValueBuilder.byteArray(_holder.accountHash()),
+                _to: CLValueBuilder.byteArray(_to.accountHash()),
             })
         ),
         DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
