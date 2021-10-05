@@ -79,7 +79,7 @@ const main = async () => {
         './network_keys/user1/secret_key.pem'
     );
 
-    let vpRequestID = 0;
+    let vpRequestID = 1;
     let ipfsHash = ippolit;
     await registerVPResponse(vpRequestID, ipfsHash);
 };

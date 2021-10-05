@@ -21,8 +21,8 @@
     "issueDemoVC" : "node ./js/demovcregistry/transact_issueDemoVC.js",
     "revokeDemoVC":"node ./js/demovcregistry/transact_revokeDemoVC.js",
     "reActivateDemoVC" : "node ./js/demovcregistry/transact_reActivateDemoVC.js",
-    "registerVPResponse" : "node ./js/demovcregistry/transact_registerVPResponse.js",
     "sendVPRequest":"node ./js/demovcregistry/transact_sendVPRequest.js",
+    "registerVPResponse" : "node ./js/demovcregistry/transact_registerVPResponse.js",
     "readDemoVC":"node ./js/demovcregistry/read_demoVC.js",
 
     "deployVcregistry": "node ./js/vcregistry/deploy_vсregistry.js",
