@@ -1,9 +1,4 @@
-/**
- * @fileOverview CSPR JS SDK demo: ERC20 - view contract balances.
- */
-
 var _ = require('lodash');
-
 const caspersdk = require('casper-js-sdk');
 const { identity } = require('lodash');
 const Keys = caspersdk.Keys;
@@ -12,7 +7,11 @@ const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
 const { CONTRACT_DID_NAME, 
         DEPLOY_NODE_ADDRESS,
-        DEPLOY_CHAIN_NAME } = require("../constants");
+        DEPLOY_CHAIN_NAME,
+        IPPOLIT_KEY_PUBLIC_PATH,
+        IPPOLIT_KEY_SECRET_PATH,
+        TRENT_KEY_SECRET_PATH,
+        TRENT_KEY_PUBLIC_PATH } = require("../constants");
 const { CLValue } = require('casper-js-sdk');
 
 const readOwner = async(_identity) => {
@@ -22,8 +21,8 @@ const readOwner = async(_identity) => {
 
     // Step 2: Set contract operator key pair.
     const keyPairOfContract = Keys.Ed25519.parseKeyFiles(
-        './network_keys/ippolit/IppolitWallet_public_key.pem',
-        './network_keys/ippolit/IppolitWallet_secret_key.pem'
+        IPPOLIT_KEY_PUBLIC_PATH,
+        IPPOLIT_KEY_SECRET_PATH
     );
 
     // Step 3: Query node for global state root hash.
@@ -53,8 +52,8 @@ const readDelegate = async(_identity, _delegateType, _delegate) => {
 
     // Step 2: Set contract operator key pair.
     const keyPairOfContract = Keys.Ed25519.parseKeyFiles(
-        './network_keys/ippolit/IppolitWallet_public_key.pem',
-        './network_keys/ippolit/IppolitWallet_secret_key.pem'
+        IPPOLIT_KEY_PUBLIC_PATH,
+        IPPOLIT_KEY_SECRET_PATH
     );
 
     // Step 3: Query node for global state root hash.
@@ -87,8 +86,8 @@ const readAttribute = async(_identity, _name) => {
  
     // Step 2: Set contract operator key pair.
     const keyPairOfContract = Keys.Ed25519.parseKeyFiles(
-        './network_keys/ippolit/IppolitWallet_public_key.pem',
-        './network_keys/ippolit/IppolitWallet_secret_key.pem'
+        IPPOLIT_KEY_PUBLIC_PATH,
+        IPPOLIT_KEY_SECRET_PATH
     );
  
     // Step 3: Query node for global state root hash.
@@ -97,7 +96,7 @@ const readAttribute = async(_identity, _name) => {
     // Step 4: Query node for contract hash.
     const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_DID_NAME);
  
-    let key = "attribute_";//+Buffer.from(_identity.accountHash()).toString('hex');
+    let key = "attribute_";
     key += Buffer.from(_identity.accountHash()).toString('hex');
     key += "_";
     key += _name;
@@ -113,57 +112,23 @@ const readAttribute = async(_identity, _name) => {
     }
 }
 
-const asd = async (key) => {
-     // Step 1: Set casper node client.
-    const client = new CasperClient(DEPLOY_NODE_ADDRESS);
-    const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
-
-    // Step 2: Set contract operator key pair.
-    const keyPairOfContract = Keys.Ed25519.parseKeyFiles(
-        './network_keys/ippolit/IppolitWallet_public_key.pem',
-        './network_keys/ippolit/IppolitWallet_secret_key.pem'
-    );
-
-    // Step 3: Query node for global state root hash.
-    const stateRootHash = await clientRpc.getStateRootHash();
-
-    // Step 4: Query node for contract hash.
-    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_DID_NAME);
-    
-    //let key = "asd";
-
-    // Step 5: Query node for value by key.
-    let result = await clientRpc.getBlockState(stateRootHash,contractHash,[key])
-    if(key == "asd1"){
-        console.log(key+": ");
-        for(var i in result){
-            console.log(i);
-        }
-        console.log(result["CLValue"]["data"][1]);
-    }else{
-        console.log(key+": ");
-        console.log(result);
-    }
-}
-
-
 const main = async () => {
     const ippolit = Keys.Ed25519.parseKeyFiles(
-        './network_keys/ippolit/IppolitWallet_public_key.pem',
-        './network_keys/ippolit/IppolitWallet_secret_key.pem'
+        IPPOLIT_KEY_PUBLIC_PATH,
+        IPPOLIT_KEY_SECRET_PATH
     );
-    let bob = Keys.Ed25519.parseKeyFiles(
-        './network_keys/user1/public_key.pem',
-        './network_keys/user1/secret_key.pem'
+    let trent = Keys.Ed25519.parseKeyFiles(
+        TRENT_KEY_PUBLIC_PATH,
+        TRENT_KEY_SECRET_PATH
     );
     
-    await readOwner(ippolit);
-    await readDelegate(ippolit,ippolit,bob);
-    await readAttribute(ippolit,"asd");
-    // await asd("asd1");
-    // await asd("asd2");
-    // await asd("asd3");
-    // await asd("asd4");
+    let identity = ippolit;
+    await readOwner(identity);
+    let delegateType = ippolit;
+    let delegate = trent;
+    await readDelegate(identity,delegateType,delegate);
+    let name = "asd"
+    await readAttribute(identity,name);
    
 };
 
