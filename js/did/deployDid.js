@@ -13,7 +13,9 @@ const Keys = caspersdk.Keys;
 const PATH_TO_CONTRACT = './target/wasm32-unknown-unknown/release/did.wasm';
 const { CONTRACT_DID_NAME, 
         DEPLOY_NODE_ADDRESS,
-        DEPLOY_CHAIN_NAME } = require("../constants");
+        DEPLOY_CHAIN_NAME,
+        DEPLOYMENT_KEY_SECRET_PATH,
+        DEPLOYMENT_KEY_PUBLIC_PATH } = require("../constants");
 const DEPLOY_GAS_PRICE = 5;
 const DEPLOY_GAS_PAYMENT = 500000000000; //10000000000 = 10**10 ?= 1 CSPR ?
 const DEPLOY_TTL_MS = 3600000;
@@ -25,8 +27,8 @@ const main = async () => {
 
     // Step 2: Set contract operator key pair.
     const keyPairOfContract = Keys.Ed25519.parseKeyFiles(
-        './network_keys/ippolit/IppolitWallet_public_key.pem',
-        './network_keys/ippolit/IppolitWallet_secret_key.pem'
+        DEPLOYMENT_KEY_PUBLIC_PATH,
+        DEPLOYMENT_KEY_SECRET_PATH
     );
 
     // Step 3.0: get binary of contract.
@@ -57,7 +59,7 @@ const main = async () => {
 
     // Step 5: Dispatch deploy to node.
     const deployHash = await client.putDeploy(deploy);
-    console.log("Deploy hash:");
+    console.log("Deploy CasperDIDContract hash:");
     console.log(deployHash);
 };
 
