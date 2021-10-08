@@ -7,7 +7,7 @@ const Keys = caspersdk.Keys;
 const RuntimeArgs = caspersdk.RuntimeArgs;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
-const { CONTRACT_DID_NAME, 
+const { CONTRACT_HASH, 
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME,
         IPPOLIT_KEY_SECRET_PATH,
@@ -23,27 +23,16 @@ const DEPLOY_TTL_MS = 3600000;
 const addDelegate = async (_identity, _delegateType, _delegate, _validity) => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
-    const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
 
     // Step 2: Set contract operator key pair.
-    const keyPairOfContract = Keys.Ed25519.parseKeyFiles(
-        './network_keys/ippolit/IppolitWallet_public_key.pem',
-        './network_keys/ippolit/IppolitWallet_secret_key.pem'
-    );
-
-    // Step 3: Query node for global state root hash.
-    const stateRootHash = await clientRpc.getStateRootHash();
-
-    // Step 4: Query node for contract hash.
-    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_DID_NAME);
-    const contractHashAsByteArray = [...Buffer.from(contractHash.slice(5), "hex")];
+    const contractHashAsByteArray = [...Buffer.from(CONTRACT_HASH.slice(5), "hex")];
 
     // Step 5.0: Form input parametrs.
    
     // Step 5.1: Form the deploy.
     let deploy = DeployUtil.makeDeploy(
         new DeployUtil.DeployParams(
-            keyPairOfContract.publicKey,
+            _identity.publicKey,
             DEPLOY_CHAIN_NAME,
             DEPLOY_GAS_PRICE,
             DEPLOY_TTL_MS
@@ -62,7 +51,7 @@ const addDelegate = async (_identity, _delegateType, _delegate, _validity) => {
     );
 
     // Step 5.2: Sign deploy.
-    deploy = client.signDeploy(deploy, keyPairOfContract); 
+    deploy = client.signDeploy(deploy, _identity); 
     console.log("signed deploy:");
     console.log(deploy);
 

@@ -3,15 +3,19 @@ const caspersdk = require('casper-js-sdk');
 const { identity } = require('lodash');
 const Keys = caspersdk.Keys;
 const CasperClient = caspersdk.CasperClient;
+const CLValueBuilder = caspersdk.CLValueBuilder;
+const CLPublicKeyTag = caspersdk.CLPublicKeyTag;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
-const { CONTRACT_DID_NAME, 
+const { CONTRACT_HASH, 
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME,
         IPPOLIT_KEY_PUBLIC_PATH,
         IPPOLIT_KEY_SECRET_PATH,
         TRENT_KEY_SECRET_PATH,
-        TRENT_KEY_PUBLIC_PATH } = require("../constants");
+        TRENT_KEY_PUBLIC_PATH ,
+        VICTOR_KEY_SECRET_PATH,
+        VICTOR_KEY_PUBLIC_PATH} = require("../constants");
 const { CLValue } = require('casper-js-sdk');
 
 const readOwner = async(_identity) => {
@@ -19,27 +23,17 @@ const readOwner = async(_identity) => {
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
 
-    // Step 2: Set contract operator key pair.
-    const keyPairOfContract = Keys.Ed25519.parseKeyFiles(
-        IPPOLIT_KEY_PUBLIC_PATH,
-        IPPOLIT_KEY_SECRET_PATH
-    );
-
     // Step 3: Query node for global state root hash.
     const stateRootHash = await clientRpc.getStateRootHash();
-
-    // Step 4: Query node for contract hash.
-    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_DID_NAME);
 
     let key = "owner_"+Buffer.from(_identity.accountHash()).toString('hex');
 
     // Step 5: Query node for value by key.
     try{
-        let result = await clientRpc.getBlockState(stateRootHash,contractHash,[key])
-        console.log("owner_identity:");
-        console.log(result);
+        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_HASH,[key])
+        console.log("owner_identity: ",Buffer.from(result["CLValue"]["data"]).toString('hex'));
     }catch{
-        console.log("owner doesnt instantiated");
+        console.log("owner isn't instantiated");
     }
 }
 
@@ -50,32 +44,15 @@ const readDelegate = async(_identity, _delegateType, _delegate) => {
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
 
-    // Step 2: Set contract operator key pair.
-    const keyPairOfContract = Keys.Ed25519.parseKeyFiles(
-        IPPOLIT_KEY_PUBLIC_PATH,
-        IPPOLIT_KEY_SECRET_PATH
-    );
-
     // Step 3: Query node for global state root hash.
     const stateRootHash = await clientRpc.getStateRootHash();
-
-    // Step 4: Query node for contract hash.
-    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_DID_NAME);
-
-    let key = "delegate_";
-    key += Buffer.from(_identity.accountHash()).toString('hex');
-    key += "_";
-    key += Buffer.from(_delegateType.accountHash()).toString('hex');
-    key += "_";
-    key += Buffer.from(_delegate.accountHash()).toString('hex');
-
     // Step 5: Query node for value by key.
     try{
-        let result = await clientRpc.getBlockState(stateRootHash,contractHash,[key])
+        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_HASH,[key])
         console.log("delegate result:");
         console.log(result);
     }catch{
-        console.log("delegate doesnt instantiated");
+        console.log("delegate isn't instantiated");
     }
 }
 
@@ -83,32 +60,18 @@ const readAttribute = async(_identity, _name) => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
- 
-    // Step 2: Set contract operator key pair.
-    const keyPairOfContract = Keys.Ed25519.parseKeyFiles(
-        IPPOLIT_KEY_PUBLIC_PATH,
-        IPPOLIT_KEY_SECRET_PATH
-    );
- 
+
     // Step 3: Query node for global state root hash.
     const stateRootHash = await clientRpc.getStateRootHash();
- 
-    // Step 4: Query node for contract hash.
-    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_DID_NAME);
- 
-    let key = "attribute_";
-    key += Buffer.from(_identity.accountHash()).toString('hex');
-    key += "_";
-    key += _name;
-    
+    // Step 5: Query node for value by key.
     // Step 5: Query node for value by key.
     try{
-        let result = await clientRpc.getBlockState(stateRootHash,contractHash,[key])
+        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_HASH,[key])
         console.log("attribute result:");
         console.log(result["CLValue"]["data"][0]);
         console.log(result["CLValue"]["data"][1]);
     }catch{
-        console.log("attribute doesnt instantiated");
+        console.log("attribute isn't instantiated");
     }
 }
 
@@ -121,13 +84,20 @@ const main = async () => {
         TRENT_KEY_PUBLIC_PATH,
         TRENT_KEY_SECRET_PATH
     );
+    let victor = Keys.Ed25519.parseKeyFiles(
+        VICTOR_KEY_PUBLIC_PATH,
+        VICTOR_KEY_SECRET_PATH
+    );
     
     let identity = ippolit;
-    await readOwner(identity);
+    console.log("Read Owner for Trent");
+    await readOwner(trent);
+    console.log("Read Owner for Victor");
+    await readOwner(victor);
     let delegateType = ippolit;
     let delegate = trent;
     await readDelegate(identity,delegateType,delegate);
-    let name = "asd"
+    let name = "service-endpoint"
     await readAttribute(identity,name);
    
 };

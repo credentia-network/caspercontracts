@@ -7,13 +7,15 @@ const Keys = caspersdk.Keys;
 const RuntimeArgs = caspersdk.RuntimeArgs;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
-const { CONTRACT_DID_NAME, 
-        DEPLOY_NODE_ADDRESS,
+const { DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME,
         IPPOLIT_KEY_SECRET_PATH,
         IPPOLIT_KEY_PUBLIC_PATH,
         TRENT_KEY_SECRET_PATH,
-        TRENT_KEY_PUBLIC_PATH
+        TRENT_KEY_PUBLIC_PATH,
+        VICTOR_KEY_SECRET_PATH,
+        VICTOR_KEY_PUBLIC_PATH,
+        CONTRACT_HASH
     } = require("../constants");
 const DEPLOY_GAS_PRICE = 10;
 const DEPLOY_GAS_PAYMENT = 50000000000;
@@ -22,27 +24,16 @@ const DEPLOY_TTL_MS = 3600000;
 const changeOwner = async (_identity, _newOwner) => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
-    const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
 
     // Step 2: Set contract operator key pair.
-    const keyPairOfContract = Keys.Ed25519.parseKeyFiles(
-        IPPOLIT_KEY_PUBLIC_PATH,
-        IPPOLIT_KEY_SECRET_PATH
-    );
-
-    // Step 3: Query node for global state root hash.
-    const stateRootHash = await clientRpc.getStateRootHash();
-
-    // Step 4: Query node for contract hash.
-    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_DID_NAME);
-    const contractHashAsByteArray = [...Buffer.from(contractHash.slice(5), "hex")];
+    const contractHashAsByteArray = [...Buffer.from(CONTRACT_HASH.slice(5), "hex")];
 
     // Step 5.0: Form input parametrs.
 
     // Step 5.1: Form the deploy.
     let deploy = DeployUtil.makeDeploy(
         new DeployUtil.DeployParams(
-            keyPairOfContract.publicKey,
+            _identity.publicKey,
             DEPLOY_CHAIN_NAME,
             DEPLOY_GAS_PRICE,
             DEPLOY_TTL_MS
@@ -59,14 +50,16 @@ const changeOwner = async (_identity, _newOwner) => {
     );
 
     // Step 5.2: Sign deploy.
-    deploy = client.signDeploy(deploy, keyPairOfContract); 
-    console.log("signed deploy:");
-    console.log(deploy);
+    deploy = client.signDeploy(deploy, _identity); 
+    // console.log("signed deploy:");
+    // console.log(deploy);
+    console.log("Change owner for Identity: ", Buffer.from(_identity.accountHash()).toString('hex'));
+    console.log("new owner address: ", Buffer.from(_newOwner.accountHash()).toString('hex'));
 
     // Step 5.3: Dispatch deploy to node.
     let deployResult = await client.putDeploy(deploy);
-    console.log("Deploy result");
-    console.log(deployResult);
+    console.log("Deploy result hash: ", deployResult);
+    // console.log(deployResult);
 };
 
 const main = async () => {
@@ -80,7 +73,13 @@ const main = async () => {
         TRENT_KEY_SECRET_PATH
     );
 
-    await changeOwner(ippolit,trent);
+    let victor = Keys.Ed25519.parseKeyFiles(
+        VICTOR_KEY_PUBLIC_PATH,
+        VICTOR_KEY_SECRET_PATH
+    );
+
+    await changeOwner(trent,trent);
+    await changeOwner(victor,victor);
     
 };
 

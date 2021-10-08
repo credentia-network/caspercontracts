@@ -10,7 +10,7 @@ const RuntimeArgs = caspersdk.RuntimeArgs;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
 
-const { CONTRACT_DID_NAME, 
+const { CONTRACT_HASH, 
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME,
         IPPOLIT_KEY_SECRET_PATH,
@@ -26,27 +26,15 @@ const DEPLOY_TTL_MS = 3600000;
 const setAttribute = async (_identity, _name, _value, _validity) => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
-    const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
 
     // Step 2: Set contract operator key pair.
-    const keyPairOfContract = Keys.Ed25519.parseKeyFiles(
-        IPPOLIT_KEY_PUBLIC_PATH,
-        IPPOLIT_KEY_SECRET_PATH
-    );
-
-    // Step 3: Query node for global state root hash.
-    const stateRootHash = await clientRpc.getStateRootHash();
-
-    // Step 4: Query node for contract hash.
-    const contractHash = await getAccountNamedKeyValue(client, stateRootHash, keyPairOfContract, CONTRACT_DID_NAME);
-    const contractHashAsByteArray = [...Buffer.from(contractHash.slice(5), "hex")];
-
+    const contractHashAsByteArray = [...Buffer.from(CONTRACT_HASH.slice(5), "hex")];
     // Step 5.0: Form input parametrs.
    
     // Step 5.1: Form the deploy.
     let deploy = DeployUtil.makeDeploy(
         new DeployUtil.DeployParams(
-            keyPairOfContract.publicKey,
+            _identity.publicKey,
             DEPLOY_CHAIN_NAME,
             DEPLOY_GAS_PRICE,
             DEPLOY_TTL_MS
@@ -65,7 +53,7 @@ const setAttribute = async (_identity, _name, _value, _validity) => {
     );
 
     // Step 5.2: Sign deploy.
-    deploy = client.signDeploy(deploy, keyPairOfContract); 
+    deploy = client.signDeploy(deploy, _identity); 
     console.log("signed deploy:");
     console.log(deploy);
 
@@ -82,8 +70,8 @@ const main = async () => {
     );
 
     let identity = ippolit;
-    let name = "asd";
-    let value = "my asd value";
+    let name = "service-endpoint";
+    let value = "https://myservice.com";
     let validity = 1337;
     await setAttribute(identity,name,value,validity);
     
