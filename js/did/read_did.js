@@ -42,7 +42,7 @@ const readDelegate = async(_identity, _delegateType, _delegate) => {
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
 
-    let delegate_key = "delegate_"+Buffer.from(_identity.accountHash()).toString('hex')+"_"+Buffer.from(_delegateType.accountHash()).toString('hex')+"_"+Buffer.from(_delegate.accountHash()).toString('hex');
+    let delegate_key = "delegate_"+Buffer.from(_identity.accountHash()).toString('hex')+"_"+_delegateType+"_"+Buffer.from(_delegate.accountHash()).toString('hex');
 
     // Step 3: Query node for global state root hash.
     const stateRootHash = await clientRpc.getStateRootHash();
@@ -98,11 +98,16 @@ const main = async () => {
     await readOwner(victor);
     console.log("Read Owner for Ippolit");
     await readOwner(ippolit);
-    let delegateType = ippolit;
-    let delegate = trent;
-    await readDelegate(identity,delegateType,delegate);
+    console.log("Read attribute for Victor");
     let name = "service-endpoint"
-    await readAttribute(identity,name);
+    await readAttribute(victor, name);
+    console.log("Read attribute for Trent");
+    await readAttribute(trent, name);
+
+    let delegateType = "0000000000000000000000000000000000000000000000000000000000000001";
+    let delegatee = ippolit;
+    await readDelegate(victor, delegateType, delegatee);
+   
    
 };
 

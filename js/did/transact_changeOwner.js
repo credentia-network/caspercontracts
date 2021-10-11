@@ -23,43 +23,44 @@ const DEPLOY_GAS_PAYMENT = 50000000000;
 const DEPLOY_TTL_MS = 3600000;
 
 const changeOwner = async (_identity, _newOwner) => {
-    // Step 1: Set casper node client.
-    const client = new CasperClient(DEPLOY_NODE_ADDRESS);
+    changeOwnerWithSigner(_identity,_identity,_newOwner);
+    // // Step 1: Set casper node client.
+    // const client = new CasperClient(DEPLOY_NODE_ADDRESS);
 
-    // Step 2: Set contract operator key pair.
-    const contractHashAsByteArray = [...Buffer.from(CONTRACT_DID_HASH.slice(5), "hex")];
+    // // Step 2: Set contract operator key pair.
+    // const contractHashAsByteArray = [...Buffer.from(CONTRACT_DID_HASH.slice(5), "hex")];
 
-    // Step 5.0: Form input parametrs.
+    // // Step 5.0: Form input parametrs.
 
-    // Step 5.1: Form the deploy.
-    let deploy = DeployUtil.makeDeploy(
-        new DeployUtil.DeployParams(
-            _identity.publicKey,
-            DEPLOY_CHAIN_NAME,
-            DEPLOY_GAS_PRICE,
-            DEPLOY_TTL_MS
-        ),
-        DeployUtil.ExecutableDeployItem.newStoredContractByHash(
-            contractHashAsByteArray,
-            "changeOwner",
-            RuntimeArgs.fromMap({
-                identity: CLValueBuilder.byteArray(_identity.accountHash()),
-                newOwner: CLValueBuilder.byteArray(_newOwner.accountHash()),
-            })
-        ),
-        DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
-    );
+    // // Step 5.1: Form the deploy.
+    // let deploy = DeployUtil.makeDeploy(
+    //     new DeployUtil.DeployParams(
+    //         _identity.publicKey,
+    //         DEPLOY_CHAIN_NAME,
+    //         DEPLOY_GAS_PRICE,
+    //         DEPLOY_TTL_MS
+    //     ),
+    //     DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+    //         contractHashAsByteArray,
+    //         "changeOwner",
+    //         RuntimeArgs.fromMap({
+    //             identity: CLValueBuilder.byteArray(_identity.accountHash()),
+    //             newOwner: CLValueBuilder.byteArray(_newOwner.accountHash()),
+    //         })
+    //     ),
+    //     DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
+    // );
 
-    // Step 5.2: Sign deploy.
-    deploy = client.signDeploy(deploy, _identity); 
-    // console.log("signed deploy:");
-    // console.log(deploy);
-    console.log("Change owner for Identity: ", Buffer.from(_identity.accountHash()).toString('hex'));
-    console.log("new owner address: ", Buffer.from(_newOwner.accountHash()).toString('hex'));
+    // // Step 5.2: Sign deploy.
+    // deploy = client.signDeploy(deploy, _identity); 
+    // // console.log("signed deploy:");
+    // // console.log(deploy);
+    // console.log("Change owner for Identity: ", Buffer.from(_identity.accountHash()).toString('hex'));
+    // console.log("new owner address: ", Buffer.from(_newOwner.accountHash()).toString('hex'));
 
-    // Step 5.3: Dispatch deploy to node.
-    let deployResult = await client.putDeploy(deploy);
-    console.log("Deploy result hash: ", deployResult);
+    // // Step 5.3: Dispatch deploy to node.
+    // let deployResult = await client.putDeploy(deploy);
+    // console.log("Deploy result hash: ", deployResult);
     // console.log(deployResult);
 };
 
@@ -120,8 +121,8 @@ const main = async () => {
         VICTOR_KEY_SECRET_PATH
     );
 
-    //await changeOwner(trent,trent);
-    //await changeOwner(victor,victor);
+    await changeOwner(trent,trent);
+    await changeOwner(victor,victor);
     //await changeOwner(ippolit,ippolit);
     //await changeOwnerWithSigner(victor,ippolit,trent);
 

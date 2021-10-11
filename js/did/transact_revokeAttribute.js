@@ -14,9 +14,11 @@ const { CONTRACT_DID_HASH,
         IPPOLIT_KEY_SECRET_PATH,
         IPPOLIT_KEY_PUBLIC_PATH,
         TRENT_KEY_SECRET_PATH,
-        TRENT_KEY_PUBLIC_PATH} = require("../constants");
+        TRENT_KEY_PUBLIC_PATH,
+        VICTOR_KEY_PUBLIC_PATH,
+        VICTOR_KEY_SECRET_PATH} = require("../constants");
 const DEPLOY_GAS_PRICE = 10;
-const DEPLOY_GAS_PAYMENT = 50000000000;
+const DEPLOY_GAS_PAYMENT = 5000000000;
 const DEPLOY_TTL_MS = 3600000;
 
 
@@ -50,8 +52,8 @@ const revokeAttribute = async (_identity, _name) => {
 
     // Step 5.2: Sign deploy.
     deploy = client.signDeploy(deploy, _identity); 
-    console.log("signed deploy:");
-    console.log(deploy);
+    // console.log("signed deploy:");
+    // console.log(deploy);
 
     // Step 5.3: Dispatch deploy to node.
     let deployResult = await client.putDeploy(deploy);
@@ -66,9 +68,18 @@ const main = async () => {
         IPPOLIT_KEY_SECRET_PATH
     );
 
-    let identity = ippolit;
+    const trent = Keys.Ed25519.parseKeyFiles(
+        TRENT_KEY_PUBLIC_PATH,
+        TRENT_KEY_SECRET_PATH
+    );
+    const victor = Keys.Ed25519.parseKeyFiles(
+        VICTOR_KEY_PUBLIC_PATH,
+        VICTOR_KEY_SECRET_PATH
+    );
+
+    let identity = victor;
     let name = "service-endpoint";
-    await revokeAttribute(identity,name);
+    await revokeAttribute(identity, name);
 };
 
 const getAccountInfo = async (client, stateRootHash, keyPair) => {

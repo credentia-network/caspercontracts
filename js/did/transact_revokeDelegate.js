@@ -13,10 +13,12 @@ const { CONTRACT_DID_HASH,
         IPPOLIT_KEY_SECRET_PATH,
         IPPOLIT_KEY_PUBLIC_PATH,
         TRENT_KEY_SECRET_PATH,
-        TRENT_KEY_PUBLIC_PATH
+        TRENT_KEY_PUBLIC_PATH,
+        VICTOR_KEY_PUBLIC_PATH,
+        VICTOR_KEY_SECRET_PATH
     } = require("../constants");
 const DEPLOY_GAS_PRICE = 10;
-const DEPLOY_GAS_PAYMENT = 50000000000;
+const DEPLOY_GAS_PAYMENT = 5000000000;
 const DEPLOY_TTL_MS = 3600000;
 
 
@@ -43,7 +45,7 @@ const revokeDelegate = async (_identity, _delegateType, _delegate) => {
             "revokeDelegate",
             RuntimeArgs.fromMap({
                 identity: CLValueBuilder.byteArray(_identity.accountHash()),
-                delegateType: CLValueBuilder.byteArray(_delegateType.accountHash()),
+                delegateType: CLValueBuilder.byteArray(Buffer.from(_delegateType, "hex")),
                 delegate: CLValueBuilder.byteArray(_delegate.accountHash()),
             })
         ),
@@ -52,8 +54,8 @@ const revokeDelegate = async (_identity, _delegateType, _delegate) => {
 
     // Step 5.2: Sign deploy.
     deploy = client.signDeploy(deploy, _identity); 
-    console.log("signed deploy:");
-    console.log(deploy);
+    // console.log("signed deploy:");
+    // console.log(deploy);
 
     // Step 5.3: Dispatch deploy to node.
     let deployResult = await client.putDeploy(deploy);
@@ -73,10 +75,15 @@ const main = async () => {
         TRENT_KEY_SECRET_PATH
     );
 
-    let identity = ippolit;
-    let delegateType = ippolit;
-    let delegate = trent;
-    await revokeDelegate(identity,delegateType,delegate);
+    let victor = Keys.Ed25519.parseKeyFiles(
+        VICTOR_KEY_PUBLIC_PATH,
+        VICTOR_KEY_SECRET_PATH
+    );
+
+    let delegatee = trent;
+    let delegateType = "0000000000000000000000000000000000000000000000000000000000000001";
+
+    await revokeDelegate(victor,delegateType,delegatee);
     
 };
 
