@@ -172,7 +172,7 @@ pub extern "C" fn call() {
     
     //let mut named_keys = NamedKeys::new();
     
-    let contract_name: &str = "CasperVCRegistry5";
+    let contract_name: &str = "CasperVCRegistryV1";
     let contract_hash_name: &str = &format!("{}_{}",contract_name,"hash");
 
     let (contract_hash, _) = storage::new_locked_contract(entry_points, None, None, None);

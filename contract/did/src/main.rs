@@ -17,10 +17,25 @@ use contract::{contract_api::{runtime::{self, revert}, storage}, unwrap_or_rever
 use types::{ApiError, BlockTime, CLType, CLTyped, CLValue, Group, Parameter, RuntimeArgs, U256, U512, URef, account::{AccountHash, AccountHashBytes}, bytesrepr::{FromBytes, ToBytes}, contracts::{EntryPoint, EntryPointAccess, EntryPointType, 
             EntryPoints, NamedKeys}, runtime_args};
 
+
+// #[no_mangle]
+// pub extern "C" fn asd(){
+//     set_key("asd",runtime::get_caller());
+// }
+
+fn _identity_owner(identity: AccountHash) -> AccountHash{ 
+    let owner: AccountHash = get_key(&owner_key(&identity));
+    let zero_account: AccountHash = AccountHash::new([0u8;32]);
+    if owner == zero_account {
+        identity
+    }else{
+        owner
+    }
+}
+
 #[no_mangle]
 pub extern "C" fn identityOwner() { 
     let identity:AccountHash = runtime::get_named_arg("identity");
-    
     let owner: AccountHash = _identity_owner(identity);
     ret(owner);
 }
@@ -41,7 +56,9 @@ pub extern "C" fn validDelegate(){
 #[no_mangle]
 pub extern "C" fn changeOwner(){
     let identity: AccountHash = runtime::get_named_arg("identity");
-    only_owner(identity,runtime::get_caller());
+    if _identity_owner(identity) != runtime::get_caller(){
+        runtime::revert(ApiError::PermissionDenied);
+    }
     let new_owner: AccountHash = runtime::get_named_arg("newOwner");
 
     let now_blocktime: BlockTime = runtime::get_blocktime();
@@ -53,7 +70,9 @@ pub extern "C" fn changeOwner(){
 #[no_mangle]
 pub extern "C" fn addDelegate(){
     let identity: AccountHash = runtime::get_named_arg("identity");
-    only_owner(identity, runtime::get_caller());
+    if _identity_owner(identity) != runtime::get_caller(){
+        runtime::revert(ApiError::PermissionDenied);
+    }
     let delegate_type: AccountHash = runtime::get_named_arg("delegateType");
     let delegate: AccountHash = runtime::get_named_arg("delegate");
     let validity:u64  = runtime::get_named_arg("validity");
@@ -68,7 +87,9 @@ pub extern "C" fn addDelegate(){
 #[no_mangle]
 pub extern "C" fn revokeDelegate(){
     let identity: AccountHash = runtime::get_named_arg("identity");
-    only_owner(identity, runtime::get_caller());
+    if _identity_owner(identity) != runtime::get_caller(){
+        runtime::revert(ApiError::PermissionDenied);
+    }
     let delegate_type: AccountHash = runtime::get_named_arg("delegateType");
     let delegate: AccountHash = runtime::get_named_arg("delegate");
 
@@ -81,7 +102,9 @@ pub extern "C" fn revokeDelegate(){
 #[no_mangle]
 pub extern "C" fn setAttribute(){
     let identity: AccountHash = runtime::get_named_arg("identity");
-    only_owner(identity, runtime::get_caller());
+    if _identity_owner(identity) != runtime::get_caller(){
+        runtime::revert(ApiError::PermissionDenied);
+    }
     let name: String = runtime::get_named_arg("name");
     let value: String = runtime::get_named_arg("value");
     let validity: u64  = runtime::get_named_arg("validity");
@@ -97,7 +120,9 @@ pub extern "C" fn setAttribute(){
 #[no_mangle]
 pub extern "C" fn revokeAttribute(){
     let identity: AccountHash = runtime::get_named_arg("identity");
-    only_owner(identity, runtime::get_caller());
+    if _identity_owner(identity) != runtime::get_caller(){
+        runtime::revert(ApiError::PermissionDenied);
+    }
     let name: String = runtime::get_named_arg("name");
     
     let now_blocktime: BlockTime = runtime::get_blocktime();
@@ -113,6 +138,12 @@ pub extern "C" fn revokeAttribute(){
 #[no_mangle]
 pub extern "C" fn call() {
     let mut entry_points = EntryPoints::new();
+    // entry_points.add_entry_point(endpoint(
+    //     "asd",
+    //     vec![],
+    //     CLType::Unit,
+    // ));
+
     entry_points.add_entry_point(endpoint(
         "identityOwner",
         vec![
@@ -177,7 +208,7 @@ pub extern "C" fn call() {
    
     //let mut named_keys = NamedKeys::new();
     
-    let contract_name: &str = "CasperDIDRegistry12";
+    let contract_name: &str = "CasperDIDRegistryV1";
     let contract_hash_name: &str = &format!("{}_{}",contract_name,"hash");
 
     let (contract_hash, _) = storage::new_locked_contract(entry_points, None, None, None);
@@ -203,21 +234,6 @@ fn attribute_key(identity: &AccountHash,name: &str) -> String{
     format!("attribute_{}_{}",identity,name)
 }
 
-fn _identity_owner(identity: AccountHash) -> AccountHash{ 
-    let owner: AccountHash = get_key(&owner_key(&identity));
-    let zero_account: AccountHash = AccountHash::new([0u8;32]);
-    if owner == zero_account {
-        identity
-    }else{
-        owner
-    }
-}
-
-fn only_owner(identity: AccountHash, actor: AccountHash){
-    if actor != _identity_owner(identity) {
-        runtime::revert(ApiError::PermissionDenied);
-    }
-}
 
 fn get_key<T: FromBytes + CLTyped + Default>(name: &str) -> T {
     match runtime::get_key(name) {
