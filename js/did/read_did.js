@@ -7,7 +7,7 @@ const CLValueBuilder = caspersdk.CLValueBuilder;
 const CLPublicKeyTag = caspersdk.CLPublicKeyTag;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
-const { CONTRACT_HASH, 
+const { CONTRACT_DID_HASH, 
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME,
         IPPOLIT_KEY_PUBLIC_PATH,
@@ -26,29 +26,29 @@ const readOwner = async(_identity) => {
     // Step 3: Query node for global state root hash.
     const stateRootHash = await clientRpc.getStateRootHash();
 
-    let key = "owner_"+Buffer.from(_identity.accountHash()).toString('hex');
+    let owner_key = "owner_"+Buffer.from(_identity.accountHash()).toString('hex');
 
     // Step 5: Query node for value by key.
     try{
-        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_HASH,[key])
+        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[owner_key])
         console.log("owner_identity: ",Buffer.from(result["CLValue"]["data"]).toString('hex'));
     }catch{
         console.log("owner isn't instantiated");
     }
 }
 
-
-
 const readDelegate = async(_identity, _delegateType, _delegate) => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
 
+    let delegate_key = "delegate_"+Buffer.from(_identity.accountHash()).toString('hex')+"_"+Buffer.from(_delegateType.accountHash()).toString('hex')+"_"+Buffer.from(_delegate.accountHash()).toString('hex');
+
     // Step 3: Query node for global state root hash.
     const stateRootHash = await clientRpc.getStateRootHash();
     // Step 5: Query node for value by key.
     try{
-        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_HASH,[key])
+        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[delegate_key])
         console.log("delegate result:");
         console.log(result);
     }catch{
@@ -61,12 +61,14 @@ const readAttribute = async(_identity, _name) => {
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
 
+    let attribute_key = "attribute_"+Buffer.from(_identity.accountHash()).toString('hex')+"_"+_name;
+
     // Step 3: Query node for global state root hash.
     const stateRootHash = await clientRpc.getStateRootHash();
     // Step 5: Query node for value by key.
     // Step 5: Query node for value by key.
     try{
-        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_HASH,[key])
+        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[attribute_key])
         console.log("attribute result:");
         console.log(result["CLValue"]["data"][0]);
         console.log(result["CLValue"]["data"][1]);
@@ -94,6 +96,8 @@ const main = async () => {
     await readOwner(trent);
     console.log("Read Owner for Victor");
     await readOwner(victor);
+    console.log("Read Owner for Ippolit");
+    await readOwner(ippolit);
     let delegateType = ippolit;
     let delegate = trent;
     await readDelegate(identity,delegateType,delegate);

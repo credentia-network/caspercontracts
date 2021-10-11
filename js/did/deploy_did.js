@@ -15,8 +15,11 @@ const PATH_TO_CONTRACT = './target/wasm32-unknown-unknown/release/did.wasm';
 const { CONTRACT_DID_NAME, 
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME,
+        DEPLOYMENT_KEY_PUBLIC_PATH,
         DEPLOYMENT_KEY_SECRET_PATH,
-        DEPLOYMENT_KEY_PUBLIC_PATH } = require("../constants");
+        IPPOLIT_KEY_PUBLIC_PATH,
+        IPPOLIT_KEY_SECRET_PATH
+    } = require("../constants");
 const { sleep } = require('sleep');
 const DEPLOY_GAS_PRICE = 5;
 const DEPLOY_GAS_PAYMENT = 500000000000; //10000000000 = 10**10 ?= 1 CSPR ?
@@ -34,7 +37,7 @@ const main = async () => {
     );
 
     // Step 3.0: get binary of contract.
-    const contractBinary = new Uint8Array(fs.readFileSync(PATH_TO_CONTRACT, null).buffer);//getContractBinary();
+    const contractBinary = new Uint8Array(fs.readFileSync(PATH_TO_CONTRACT, null).buffer);
 
     // Step 3: Set contract installation deploy (unsigned).
     let deploy = DeployUtil.makeDeploy(
@@ -52,7 +55,7 @@ const main = async () => {
         DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
     );
 
-    // Step 4: Sign deploy.
+    //Step 4: Sign deploy.
     deploy = client.signDeploy(deploy, keyPairOfContract); 
 
     // Step 5: Dispatch deploy to node.

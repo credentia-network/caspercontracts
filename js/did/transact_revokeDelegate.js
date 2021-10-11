@@ -7,7 +7,7 @@ const Keys = caspersdk.Keys;
 const RuntimeArgs = caspersdk.RuntimeArgs;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
-const { CONTRACT_HASH, 
+const { CONTRACT_DID_HASH, 
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME,
         IPPOLIT_KEY_SECRET_PATH,
@@ -26,7 +26,7 @@ const revokeDelegate = async (_identity, _delegateType, _delegate) => {
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
 
     // Step 2: Set contract operator key pair.
-    const contractHashAsByteArray = [...Buffer.from(CONTRACT_HASH.slice(5), "hex")];
+    const contractHashAsByteArray = [...Buffer.from(CONTRACT_DID_HASH.slice(5), "hex")];
 
     // Step 5.0: Form input parametrs.
    

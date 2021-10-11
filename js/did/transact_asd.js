@@ -7,20 +7,22 @@ const Keys = caspersdk.Keys;
 const RuntimeArgs = caspersdk.RuntimeArgs;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
-const { CONTRACT_DID_HASH, 
+const { CONTRACT_DID_HASH,
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME,
         IPPOLIT_KEY_SECRET_PATH,
         IPPOLIT_KEY_PUBLIC_PATH,
         TRENT_KEY_SECRET_PATH,
-        TRENT_KEY_PUBLIC_PATH
+        TRENT_KEY_PUBLIC_PATH,
+        VICTOR_KEY_SECRET_PATH,
+        VICTOR_KEY_PUBLIC_PATH
+        
     } = require("../constants");
 const DEPLOY_GAS_PRICE = 10;
 const DEPLOY_GAS_PAYMENT = 50000000000;
 const DEPLOY_TTL_MS = 3600000;
 
-
-const addDelegate = async (_identity, _delegateType, _delegate, _validity) => {
+const asd = async (signer) => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
 
@@ -28,40 +30,55 @@ const addDelegate = async (_identity, _delegateType, _delegate, _validity) => {
     const contractHashAsByteArray = [...Buffer.from(CONTRACT_DID_HASH.slice(5), "hex")];
 
     // Step 5.0: Form input parametrs.
-   
+
     // Step 5.1: Form the deploy.
     let deploy = DeployUtil.makeDeploy(
         new DeployUtil.DeployParams(
-            _identity.publicKey,
+            signer.publicKey,
             DEPLOY_CHAIN_NAME,
             DEPLOY_GAS_PRICE,
             DEPLOY_TTL_MS
         ),
         DeployUtil.ExecutableDeployItem.newStoredContractByHash(
             contractHashAsByteArray,
-            "addDelegate",
+            "asd",
             RuntimeArgs.fromMap({
-                identity: CLValueBuilder.byteArray(_identity.accountHash()),
-                delegateType: CLValueBuilder.byteArray(_delegateType.accountHash()),
-                delegate: CLValueBuilder.byteArray(_delegate.accountHash()),
-                validity: CLValueBuilder.u64(_validity),
             })
         ),
         DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
     );
 
     // Step 5.2: Sign deploy.
-    deploy = client.signDeploy(deploy, _identity); 
-    console.log("signed deploy:");
-    console.log(deploy);
+    deploy = client.signDeploy(deploy, signer); 
+    // console.log("signed deploy:");
+    // console.log(deploy);
 
     // Step 5.3: Dispatch deploy to node.
     let deployResult = await client.putDeploy(deploy);
-    console.log("Deploy result");
-    console.log(deployResult);
+    console.log("Deploy result hash: ", deployResult);
+    // console.log(deployResult);
 };
 
+const readAsd = async() => {
+    
+    // Step 1: Set casper node client.
+    const client = new CasperClient(DEPLOY_NODE_ADDRESS);
+    const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
 
+    let asd_key = "asd";
+
+    // Step 3: Query node for global state root hash.
+    const stateRootHash = await clientRpc.getStateRootHash();
+    // Step 5: Query node for value by key.
+    try{
+        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[asd_key])
+        console.log("asd result:");
+        console.log(result);
+    }catch{
+        console.log("asd isn't instantiated");
+    }
+
+}
 
 const main = async () => {
     const ippolit = Keys.Ed25519.parseKeyFiles(
@@ -74,11 +91,14 @@ const main = async () => {
         TRENT_KEY_SECRET_PATH
     );
 
-    let identity = ippolit;
-    let delegateType = ippolit;
-    let delegate = trent;
-    let validity = 228;
-    await addDelegate(identity,delegateType,delegate, validity);
+    let victor = Keys.Ed25519.parseKeyFiles(
+        VICTOR_KEY_PUBLIC_PATH,
+        VICTOR_KEY_SECRET_PATH
+    );
+    //console.log(trent.accountHash());
+    console.log(victor.accountHash());
+    //await asd(victor);
+    await readAsd();
     
 };
 
