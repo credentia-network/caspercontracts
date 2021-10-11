@@ -49,10 +49,15 @@ const readDelegate = async(_identity, _delegateType, _delegate) => {
     // Step 5: Query node for value by key.
     try{
         let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[delegate_key])
-        console.log("delegate result:");
-        console.log(result);
+        console.log("Reading delegate result:");
+        let expirationTimestamp = Number.parseInt(result["CLValue"]["data"].toString());
+        if(expirationTimestamp > (new Date()).getTime()){
+            console.log("Delegatee exists and expires at:",new Date(expirationTimestamp).toLocaleString());
+        }else{
+            console.log("Delegatee has been revoked");
+        }        
     }catch{
-        console.log("delegate isn't instantiated");
+        console.log("Delegatee isn't instantiated");
     }
 }
 
@@ -69,11 +74,18 @@ const readAttribute = async(_identity, _name) => {
     // Step 5: Query node for value by key.
     try{
         let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[attribute_key])
-        console.log("attribute result:");
-        console.log(result["CLValue"]["data"][0]);
-        console.log(result["CLValue"]["data"][1]);
+        console.log("Reading attribute result:");
+        console.log("Identity: ",Buffer.from(_identity.accountHash()).toString('hex'));
+        
+        let expirationTimestamp = Number.parseInt(result["CLValue"]["data"][1].data.toString());
+        if(expirationTimestamp == 0){
+            console.log(_name, "=> ''");
+        }else{
+            console.log(_name, "=>", result["CLValue"]["data"][0].data);
+            console.log("Expires at: ", new Date(expirationTimestamp).toLocaleString());    
+        }
     }catch{
-        console.log("attribute isn't instantiated");
+        console.log(_name, "=> ''");
     }
 }
 
