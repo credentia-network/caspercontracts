@@ -22,7 +22,7 @@ const DEPLOY_GAS_PAYMENT = 5000000000;
 const DEPLOY_TTL_MS = 3600000;
 
 
-const revokeAttribute = async (_identity, _name) => {
+const revokeAttribute = async (identity,index) => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
 
@@ -34,7 +34,7 @@ const revokeAttribute = async (_identity, _name) => {
     // Step 5.1: Form the deploy.
     let deploy = DeployUtil.makeDeploy(
         new DeployUtil.DeployParams(
-            _identity.publicKey,
+            identity.publicKey,
             DEPLOY_CHAIN_NAME,
             DEPLOY_GAS_PRICE,
             DEPLOY_TTL_MS
@@ -43,15 +43,15 @@ const revokeAttribute = async (_identity, _name) => {
             contractHashAsByteArray,
             "revokeAttribute",
             RuntimeArgs.fromMap({
-                identity: CLValueBuilder.byteArray(_identity.accountHash()),
-                name: CLValueBuilder.string(_name),
+                identity: CLValueBuilder.byteArray(identity.accountHash()),
+                index: CLValueBuilder.u64(index),
             })
         ),
         DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
     );
 
     // Step 5.2: Sign deploy.
-    deploy = client.signDeploy(deploy, _identity); 
+    deploy = client.signDeploy(deploy, identity); 
     // console.log("signed deploy:");
     // console.log(deploy);
 
@@ -77,9 +77,9 @@ const main = async () => {
         VICTOR_KEY_SECRET_PATH
     );
 
-    let identity = victor;
-    let name = "service-endpoint";
-    await revokeAttribute(identity, name);
+    let identity = trent;
+    let index = 0;
+    await revokeAttribute(identity, index);
 };
 
 const getAccountInfo = async (client, stateRootHash, keyPair) => {

@@ -22,7 +22,7 @@ const DEPLOY_GAS_PAYMENT = 50000000000;
 const DEPLOY_TTL_MS = 3600000;
 
 
-const addDelegate = async (_identity, _delegateType, _delegate, _validity) => {
+const addDelegate = async (identity, delegateKey, delegateValue, expire) => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
 
@@ -34,7 +34,7 @@ const addDelegate = async (_identity, _delegateType, _delegate, _validity) => {
     // Step 5.1: Form the deploy.
     let deploy = DeployUtil.makeDeploy(
         new DeployUtil.DeployParams(
-            _identity.publicKey,
+            identity.publicKey,
             DEPLOY_CHAIN_NAME,
             DEPLOY_GAS_PRICE,
             DEPLOY_TTL_MS
@@ -43,17 +43,17 @@ const addDelegate = async (_identity, _delegateType, _delegate, _validity) => {
             contractHashAsByteArray,
             "addDelegate",
             RuntimeArgs.fromMap({
-                identity: CLValueBuilder.byteArray(_identity.accountHash()),
-                delegateType: CLValueBuilder.byteArray(Buffer.from(_delegateType, "hex")),
-                delegate: CLValueBuilder.byteArray(_delegate.accountHash()),
-                validity: CLValueBuilder.u64(_validity),
+                identity: CLValueBuilder.byteArray(identity.accountHash()),
+                delegateKey: CLValueBuilder.string(delegateKey),
+                delegateValue: CLValueBuilder.string(delegateValue),
+                expire: CLValueBuilder.u64(expire),
             })
         ),
         DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
     );
 
     // Step 5.2: Sign deploy.
-    deploy = client.signDeploy(deploy, _identity); 
+    deploy = client.signDeploy(deploy, identity); 
     // console.log("signed deploy:");
     // console.log(deploy);
 
@@ -81,11 +81,11 @@ const main = async () => {
         VICTOR_KEY_SECRET_PATH
     );
 
-    // let identity = victor;
-    let delegateType = "0000000000000000000000000000000000000000000000000000000000000001";
-    // let delegate = ippolit;
-    let validity = 228;
-    await addDelegate(victor,delegateType,ippolit, validity);
+    let identity = trent;
+    let delegateKey = "did/ether/0xdeadbeef";
+    let delegateValue = "abracadabra";
+    let expire = new Date("2025-10-17T11:42:46.430Z").getTime();//unix timestamp in miliseconds
+    await addDelegate(identity,delegateKey,delegateValue,expire);
     
 };
 

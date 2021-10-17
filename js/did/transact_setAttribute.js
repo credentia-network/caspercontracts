@@ -23,49 +23,7 @@ const DEPLOY_GAS_PAYMENT = 50000000000;
 const DEPLOY_TTL_MS = 3600000;
 
 
-
-const setAttribute = async (_identity, _name, _value, _validity) => {
-    setAttributeWithSigner(_identity,_identity,_name, _value, _validity);
-    // // Step 1: Set casper node client.
-    // const client = new CasperClient(DEPLOY_NODE_ADDRESS);
-
-    // // Step 2: Set contract operator key pair.
-    // const contractHashAsByteArray = [...Buffer.from(CONTRACT_DID_HASH.slice(5), "hex")];
-    // // Step 5.0: Form input parametrs.
-   
-    // // Step 5.1: Form the deploy.
-    // let deploy = DeployUtil.makeDeploy(
-    //     new DeployUtil.DeployParams(
-    //         _identity.publicKey,
-    //         DEPLOY_CHAIN_NAME,
-    //         DEPLOY_GAS_PRICE,
-    //         DEPLOY_TTL_MS
-    //     ),
-    //     DeployUtil.ExecutableDeployItem.newStoredContractByHash(
-    //         contractHashAsByteArray,
-    //         "setAttribute",
-    //         RuntimeArgs.fromMap({
-    //             identity: CLValueBuilder.byteArray(_identity.accountHash()),
-    //             name: CLValueBuilder.string(_name),
-    //             value: CLValueBuilder.string(_value),
-    //             validity: CLValueBuilder.u64(_validity),
-    //         })
-    //     ),
-    //     DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
-    // );
-
-    // // Step 5.2: Sign deploy.
-    // deploy = client.signDeploy(deploy, _identity); 
-    // console.log("signed deploy:");
-    // console.log(deploy);
-
-    // // Step 5.3: Dispatch deploy to node.
-    // let deployResult = await client.putDeploy(deploy);
-    // console.log("Deploy result");
-    // console.log(deployResult);
-};
-
-const setAttributeWithSigner = async (signer,_identity, _name, _value, _validity) => {
+const setAttribute = async (identity, attributeKey,attributeValue,expire) => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
 
@@ -76,7 +34,7 @@ const setAttributeWithSigner = async (signer,_identity, _name, _value, _validity
     // Step 5.1: Form the deploy.
     let deploy = DeployUtil.makeDeploy(
         new DeployUtil.DeployParams(
-            signer.publicKey,
+            identity.publicKey,
             DEPLOY_CHAIN_NAME,
             DEPLOY_GAS_PRICE,
             DEPLOY_TTL_MS
@@ -85,17 +43,17 @@ const setAttributeWithSigner = async (signer,_identity, _name, _value, _validity
             contractHashAsByteArray,
             "setAttribute",
             RuntimeArgs.fromMap({
-                identity: CLValueBuilder.byteArray(_identity.accountHash()),
-                name: CLValueBuilder.string(_name),
-                value: CLValueBuilder.string(_value),
-                validity: CLValueBuilder.u64(_validity),
+                identity: CLValueBuilder.byteArray(identity.accountHash()),
+                attributeKey: CLValueBuilder.string(attributeKey),
+                attributeValue: CLValueBuilder.string(attributeValue),
+                expire: CLValueBuilder.u64(expire),
             })
         ),
         DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
     );
 
     // Step 5.2: Sign deploy.
-    deploy = client.signDeploy(deploy, signer); 
+    deploy = client.signDeploy(deploy, identity); 
     // console.log("signed deploy:");
     // console.log(deploy);
 
@@ -121,14 +79,11 @@ const main = async () => {
         VICTOR_KEY_SECRET_PATH
     );
 
-    // let identity = victor;
-    let name = "service-endpoint";
-    let value = "https://myservice.com";
-    let value2 = "https://myservice2.com";
-    let validity = 1337;
-    await setAttribute(victor,name,value,validity);
-    await setAttribute(trent,name,value2,validity);
-    // await setAttributeWithSigner(victor,identity,name,value2,validity);
+    let identity = trent;
+    let attributeKey = "service-endpoint";
+    let attributeValue = "https://myservice.com";
+    let expire = new Date("2025-10-17T11:42:46.430Z").getTime();//unix timestamp in miliseconds
+    await setAttribute(identity,attributeKey,attributeValue,expire);
     
 };
 

@@ -8,6 +8,7 @@ const CLPublicKeyTag = caspersdk.CLPublicKeyTag;
 const CasperServiceByJsonRPC = caspersdk.CasperServiceByJsonRPC;
 
 const { CONTRACT_DID_HASH, 
+        CONTRACT_DID_NAME,
         DEPLOY_NODE_ADDRESS,
         DEPLOY_CHAIN_NAME,
         IPPOLIT_KEY_PUBLIC_PATH,
@@ -37,12 +38,31 @@ const readOwner = async(_identity) => {
     }
 }
 
-const readDelegate = async(_identity, _delegateType, _delegate) => {
+const readDelegateLength = async(identity) =>{
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
 
-    let delegate_key = "delegate_"+Buffer.from(_identity.accountHash()).toString('hex')+"_"+_delegateType+"_"+Buffer.from(_delegate.accountHash()).toString('hex');
+    let delegateLength_key = Buffer.from(identity.accountHash()).toString('hex')+"_delegateLength";
+
+    // Step 3: Query node for global state root hash.
+    const stateRootHash = await clientRpc.getStateRootHash();
+    // Step 5: Query node for value by key.
+    try{
+        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[delegateLength_key])
+        console.log("Reading delegate result:");
+        console.log("Delegate length: "+result['CLValue']['data'].toString());     
+    }catch{
+        console.log("Delegate length: 0");
+    }
+}
+
+const readDelegate = async(identity, index) => {
+    // Step 1: Set casper node client.
+    const client = new CasperClient(DEPLOY_NODE_ADDRESS);
+    const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
+
+    let delegate_key = Buffer.from(identity.accountHash()).toString('hex')+"_delegate_"+index;
 
     // Step 3: Query node for global state root hash.
     const stateRootHash = await clientRpc.getStateRootHash();
@@ -50,44 +70,64 @@ const readDelegate = async(_identity, _delegateType, _delegate) => {
     try{
         let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[delegate_key])
         console.log("Reading delegate result:");
-        let expirationTimestamp = Number.parseInt(result["CLValue"]["data"].toString());
-        if(expirationTimestamp > (new Date()).getTime()){
-            console.log("Delegatee exists and expires at:",new Date(expirationTimestamp).toLocaleString());
-        }else{
-            console.log("Delegatee has been revoked");
-        }        
+        //console.log(result);
+        let delegateKey = result["CLValue"]["data"][0]['data'];
+        let delegateValue = result["CLValue"]["data"][1]['data'];
+        let expirationTimestamp = Number.parseInt(result["CLValue"]["data"][2]['data'].toString());
+
+        console.log("Delegate Key: "+delegateKey);
+        console.log("Delegate Value: "+delegateValue);
+        console.log("Expiration date: "+(new Date(expirationTimestamp)));
     }catch{
-        console.log("Delegatee isn't instantiated");
+        console.log("Delegate isn't instantiated");
     }
 }
 
-const readAttribute = async(_identity, _name) => {
+const readAttributeLength = async(identity) =>{
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
 
-    let attribute_key = "attribute_"+Buffer.from(_identity.accountHash()).toString('hex')+"_"+_name;
+    let attributeLength_key = Buffer.from(identity.accountHash()).toString('hex')+"_attributeLength";
 
     // Step 3: Query node for global state root hash.
     const stateRootHash = await clientRpc.getStateRootHash();
     // Step 5: Query node for value by key.
-    // Step 5: Query node for value by key.
     try{
-        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[attribute_key])
-        console.log("Reading attribute result:");
-        console.log("Identity: ",Buffer.from(_identity.accountHash()).toString('hex'));
-        
-        let expirationTimestamp = Number.parseInt(result["CLValue"]["data"][1].data.toString());
-        if(expirationTimestamp == 0){
-            console.log(_name, "=> ''");
-        }else{
-            console.log(_name, "=>", result["CLValue"]["data"][0].data);
-            console.log("Expires at: ", new Date(expirationTimestamp).toLocaleString());    
-        }
+        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[attributeLength_key])
+        console.log("Reading attribute length result:");
+        console.log("Attribute length: "+result['CLValue']['data'].toString());
+          
     }catch{
-        console.log(_name, "=> ''");
+        console.log("Attribute length: 0");
     }
 }
+
+const readAttribute = async(identity, index) => {
+   
+    const client = new CasperClient(DEPLOY_NODE_ADDRESS);
+    const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
+
+    let attribute_key = Buffer.from(identity.accountHash()).toString('hex')+"_attribute_"+index;
+
+    const stateRootHash = await clientRpc.getStateRootHash();
+   
+    try{
+        let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[attribute_key])
+        console.log(result);
+        let delegateKey = result["CLValue"]["data"][0]['data'];
+        let delegateValue = result["CLValue"]["data"][1]['data'];
+        let expirationTimestamp = Number.parseInt(result["CLValue"]["data"][2]['data'].toString());
+
+        console.log("Attribute Key: "+delegateKey);
+        console.log("Attribute Value: "+delegateValue);
+        console.log("Expiration date: "+(new Date(expirationTimestamp)));
+        
+    }catch{
+        console.log("Attribute isn't instantiated");
+    }
+}
+
 
 const main = async () => {
     const ippolit = Keys.Ed25519.parseKeyFiles(
@@ -103,22 +143,21 @@ const main = async () => {
         VICTOR_KEY_SECRET_PATH
     );
     
-    let identity = ippolit;
-    console.log("Read Owner for Trent");
-    await readOwner(trent);
-    console.log("Read Owner for Victor");
-    await readOwner(victor);
-    console.log("Read Owner for Ippolit");
-    await readOwner(ippolit);
-    console.log("Read attribute for Victor");
-    let name = "service-endpoint"
-    await readAttribute(victor, name);
-    console.log("Read attribute for Trent");
-    await readAttribute(trent, name);
+    
+    
+    let identity = trent;
+    let index = 0;
+    await readDelegateLength(identity);
+    await readDelegate(identity,index);
+    
+    await readAttributeLength(identity);
+    await readAttribute(identity,index);
 
-    let delegateType = "0000000000000000000000000000000000000000000000000000000000000001";
-    let delegatee = ippolit;
-    await readDelegate(victor, delegateType, delegatee);
+    // const client = new CasperClient(DEPLOY_NODE_ADDRESS);
+    // const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
+    // const stateRootHash = await clientRpc.getStateRootHash();
+    // let accinfo = await getAccountInfo(client,stateRootHash,trent);
+    // console.log(accinfo);
    
    
 };
@@ -146,7 +185,7 @@ const getAccountInfo = async (client, stateRootHash, keyPair) => {
 const getAccountNamedKeyValue = async (client, stateRootHash, keyPair, namedKey) => {
     // Chain query: get account information. 
     const accountInfo = await getAccountInfo(client, stateRootHash, keyPair);
-    
+    console.log(accountInfo);
     // Get value of contract v1 named key.
     let res = _.find(accountInfo.namedKeys, (i) => { return i.name === namedKey });
     return res.key;

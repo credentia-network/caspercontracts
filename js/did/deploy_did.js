@@ -18,7 +18,11 @@ const { CONTRACT_DID_NAME,
         DEPLOYMENT_KEY_PUBLIC_PATH,
         DEPLOYMENT_KEY_SECRET_PATH,
         IPPOLIT_KEY_PUBLIC_PATH,
-        IPPOLIT_KEY_SECRET_PATH
+        IPPOLIT_KEY_SECRET_PATH,
+        TRENT_KEY_PUBLIC_PATH ,
+        TRENT_KEY_SECRET_PATH,
+        DID_DEPLOYER_KEY_PUBLIC_PATH,
+        DID_DEPLOYER_KEY_SECRET_PATH 
     } = require("../constants");
 const { sleep } = require('sleep');
 const DEPLOY_GAS_PRICE = 5;
@@ -30,10 +34,11 @@ const main = async () => {
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
 
+
     // Step 2: Set contract operator key pair.
     const keyPairOfContract = Keys.Ed25519.parseKeyFiles(
-        DEPLOYMENT_KEY_PUBLIC_PATH,
-        DEPLOYMENT_KEY_SECRET_PATH
+        DID_DEPLOYER_KEY_PUBLIC_PATH,
+        DID_DEPLOYER_KEY_SECRET_PATH
     );
 
     // Step 3.0: get binary of contract.
@@ -81,8 +86,8 @@ const getAccountInfo = async (client, stateRootHash, keyPair) => {
         `account-hash-${accountHash}`,
         []
     );
-    // console.log("account info:");
-    // console.log(accountInfo);
+    console.log("account info:");
+    console.log(accountInfo);
     return accountInfo;
 };
 

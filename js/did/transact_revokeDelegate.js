@@ -23,7 +23,7 @@ const DEPLOY_TTL_MS = 3600000;
 
 
 
-const revokeDelegate = async (_identity, _delegateType, _delegate) => {
+const revokeDelegate = async (identity,index) => {
     // Step 1: Set casper node client.
     const client = new CasperClient(DEPLOY_NODE_ADDRESS);
 
@@ -35,7 +35,7 @@ const revokeDelegate = async (_identity, _delegateType, _delegate) => {
     // Step 5.1: Form the deploy.
     let deploy = DeployUtil.makeDeploy(
         new DeployUtil.DeployParams(
-            _identity.publicKey,
+            identity.publicKey,
             DEPLOY_CHAIN_NAME,
             DEPLOY_GAS_PRICE,
             DEPLOY_TTL_MS
@@ -44,16 +44,15 @@ const revokeDelegate = async (_identity, _delegateType, _delegate) => {
             contractHashAsByteArray,
             "revokeDelegate",
             RuntimeArgs.fromMap({
-                identity: CLValueBuilder.byteArray(_identity.accountHash()),
-                delegateType: CLValueBuilder.byteArray(Buffer.from(_delegateType, "hex")),
-                delegate: CLValueBuilder.byteArray(_delegate.accountHash()),
+                identity: CLValueBuilder.byteArray(identity.accountHash()),
+                index: CLValueBuilder.u64(index),
             })
         ),
         DeployUtil.standardPayment(DEPLOY_GAS_PAYMENT)
     );
 
     // Step 5.2: Sign deploy.
-    deploy = client.signDeploy(deploy, _identity); 
+    deploy = client.signDeploy(deploy, identity); 
     // console.log("signed deploy:");
     // console.log(deploy);
 
@@ -80,10 +79,9 @@ const main = async () => {
         VICTOR_KEY_SECRET_PATH
     );
 
-    let delegatee = trent;
-    let delegateType = "0000000000000000000000000000000000000000000000000000000000000001";
-
-    await revokeDelegate(victor,delegateType,delegatee);
+    let identity = trent;
+    let index = 0;
+    await revokeDelegate(identity,index);
     
 };
 
