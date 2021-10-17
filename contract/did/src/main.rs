@@ -1,6 +1,8 @@
 #![no_main]
 #![allow(unused_imports)]
 #![allow(unused_parens)]
+#![allow(dead_code)]
+#![allow(non_snake_case)]
 #[warn(non_snake_case)]
 
 extern crate alloc;
@@ -41,80 +43,71 @@ pub extern "C" fn identityOwner() {
 }
 
 #[no_mangle]
-pub extern "C" fn validDelegate(){
-    let identity: AccountHash = runtime::get_named_arg("identity");
-    let delegate_type: AccountHash = runtime::get_named_arg("delegateType");
-    let delegate: AccountHash = runtime::get_named_arg("delegate");
-
-    let validity: u64 = get_key(&delegate_key(&identity,&delegate_type,&delegate));
-    let now_blocktime: BlockTime = runtime::get_blocktime();
-    let now: u64 = now_blocktime.into();
-    let is_valid: bool = validity > now;
-    ret(is_valid);
-}
-
-#[no_mangle]
 pub extern "C" fn changeOwner(){
-    let identity: AccountHash = runtime::get_named_arg("identity");
+    let identity: AccountHash =  runtime::get_named_arg("identity");
+    let new_owner: AccountHash = runtime::get_named_arg("newOwner");
     if _identity_owner(identity) != runtime::get_caller(){
         runtime::revert(ApiError::PermissionDenied);
     }
-    let new_owner: AccountHash = runtime::get_named_arg("newOwner");
-
-    let now_blocktime: BlockTime = runtime::get_blocktime();
-    let now: u64 = now_blocktime.into();
     set_key(&owner_key(&identity),new_owner);
-    set_key(&changed_key(&identity), now);
+    
 }
 
 #[no_mangle]
 pub extern "C" fn addDelegate(){
     let identity: AccountHash = runtime::get_named_arg("identity");
+    let delegateKey: String =   runtime::get_named_arg("delegateKey"); 
+    let delegateValue: String = runtime::get_named_arg("delegateValue");
+    let expire: u64 =           runtime::get_named_arg("expire");
     if _identity_owner(identity) != runtime::get_caller(){
         runtime::revert(ApiError::PermissionDenied);
     }
-    let delegate_type: AccountHash = runtime::get_named_arg("delegateType");
-    let delegate: AccountHash = runtime::get_named_arg("delegate");
-    let validity:u64  = runtime::get_named_arg("validity");
-
     let now_blocktime: BlockTime = runtime::get_blocktime();
     let now: u64 = now_blocktime.into();
-    let expire: u64 = now + validity;
-    set_key(&delegate_key(&identity,&delegate_type,&delegate), expire);
-    set_key(&changed_key(&identity), now);
+    if expire <= now {
+        runtime::revert(ApiError::InvalidArgument);
+    }
+    let value:(String,String,u64) = (delegateKey, delegateValue, expire);
+    let index: u64 = get_key(&delegate_length_key(&identity));
+    let next_index:u64 = index+1;
+    set_key(&delegate_key(&identity, index), value);
+    set_key(&delegate_length_key(&identity), next_index);
 }
 
 #[no_mangle]
 pub extern "C" fn revokeDelegate(){
     let identity: AccountHash = runtime::get_named_arg("identity");
+    let index: u64 =            runtime::get_named_arg("index");
     if _identity_owner(identity) != runtime::get_caller(){
         runtime::revert(ApiError::PermissionDenied);
     }
-    let delegate_type: AccountHash = runtime::get_named_arg("delegateType");
-    let delegate: AccountHash = runtime::get_named_arg("delegate");
-
+    let mut value: (String,String, u64) = get_key(&delegate_key(&identity, index)); 
     let now_blocktime: BlockTime = runtime::get_blocktime();
     let now: u64 = now_blocktime.into();
-    set_key(&delegate_key(&identity,&delegate_type,&delegate), now);
-    set_key(&changed_key(&identity), now);
+    value.2 = now;
+    set_key(&delegate_key(&identity, index), value);
 }
 
 #[no_mangle]
 pub extern "C" fn setAttribute(){
-    let identity: AccountHash = runtime::get_named_arg("identity");
+    let identity: AccountHash =  runtime::get_named_arg("identity");
+    let attributeKey: String =   runtime::get_named_arg("attributeKey"); 
+    let attributeValue: String = runtime::get_named_arg("attributeValue");
+    let expire: u64 =            runtime::get_named_arg("expire");
     if _identity_owner(identity) != runtime::get_caller(){
         runtime::revert(ApiError::PermissionDenied);
     }
-    let name: String = runtime::get_named_arg("name");
-    let value: String = runtime::get_named_arg("value");
-    let validity: u64  = runtime::get_named_arg("validity");
-    
     let now_blocktime: BlockTime = runtime::get_blocktime();
     let now: u64 = now_blocktime.into();
-    let expire:u64 = now + validity;
-    let data = (value,expire);
-    set_key(&attribute_key(&identity,&name), data);
-    set_key(&changed_key(&identity), now);
+    if expire <= now {
+        runtime::revert(ApiError::InvalidArgument);
+    }
+
+    let value: (String,String,u64) = (attributeKey,attributeValue,expire);
+    let index: u64 = get_key(&attribute_length_key(&identity));
+    let next_index: u64 = index+1;
+    set_key(&attribute_key(&identity,index), value);
+    set_key(&attribute_length_key(&identity), next_index);
 }
 
 #[no_mangle]
@@ -123,16 +116,13 @@ pub extern "C" fn revokeAttribute(){
     if _identity_owner(identity) != runtime::get_caller(){
         runtime::revert(ApiError::PermissionDenied);
     }
-    let name: String = runtime::get_named_arg("name");
-    
+    let index: u64 = runtime::get_named_arg("index");
+    let mut value: (String,String,u64) = get_key(&attribute_key(&identity, index)); 
     let now_blocktime: BlockTime = runtime::get_blocktime();
     let now: u64 = now_blocktime.into();
-    let attribute: &str = &attribute_key(&identity,&name);
-    let expire= 0u64;
-    let stored_data: (String, u64) = get_key(attribute);
-    let data = (stored_data.0, expire);
-    set_key(attribute, data);
-    set_key(&changed_key(&identity), now);
+    value.2 = now;
+    set_key(&attribute_key(&identity, index), value);
+    
 }
 
 #[no_mangle]
@@ -152,15 +142,6 @@ pub extern "C" fn call() {
         CLType::U512,
     ));
     entry_points.add_entry_point(endpoint(
-        "validDelegate",
-        vec![
-            Parameter::new("identity", AccountHash::cl_type()),
-            Parameter::new("delegateType", AccountHash::cl_type()),
-            Parameter::new("delegate", AccountHash::cl_type()),
-        ],
-        CLType::U64,
-    ));
-    entry_points.add_entry_point(endpoint(
         "changeOwner",
         vec![
             Parameter::new("identity", AccountHash::cl_type()),
@@ -172,9 +153,9 @@ pub extern "C" fn call() {
         "addDelegate",
         vec![
             Parameter::new("identity", AccountHash::cl_type()),
-            Parameter::new("delegateType", AccountHash::cl_type()),
-            Parameter::new("delegate", AccountHash::cl_type()),
-            Parameter::new("validity", CLType::U64),
+            Parameter::new("delegateKey", CLType::String),
+            Parameter::new("delegateValue",  CLType::String),
+            Parameter::new("expire", CLType::U64),
         ],
         CLType::Unit
     ));
@@ -182,8 +163,7 @@ pub extern "C" fn call() {
         "revokeDelegate",
         vec![
             Parameter::new("identity", AccountHash::cl_type()),
-            Parameter::new("delegateType", AccountHash::cl_type()),
-            Parameter::new("delegate", AccountHash::cl_type()),
+            Parameter::new("index", AccountHash::cl_type()),
         ],
         CLType::Unit,
     ));
@@ -191,9 +171,9 @@ pub extern "C" fn call() {
         "setAttribute",
         vec![
             Parameter::new("identity", AccountHash::cl_type()),
-            Parameter::new("name", CLType::String),
-            Parameter::new("value", CLType::String),
-            Parameter::new("validity", CLType::U64),
+            Parameter::new("attributeKey", CLType::String),
+            Parameter::new("attributeValue", CLType::String),
+            Parameter::new("expire", CLType::U64),
         ],
         CLType::Unit
     ));
@@ -201,14 +181,14 @@ pub extern "C" fn call() {
         "revokeAttribute",
         vec![
             Parameter::new("identity", AccountHash::cl_type()),
-            Parameter::new("name",CLType::String),
+            Parameter::new("index",CLType::U64),
         ],
         CLType::Unit
     ));
    
     //let mut named_keys = NamedKeys::new();
     
-    let contract_name: &str = "CasperDIDRegistryV1";
+    let contract_name: &str = "CasperDIDRegistryV2";
     let contract_hash_name: &str = &format!("{}_{}",contract_name,"hash");
 
     let (contract_hash, _) = storage::new_locked_contract(entry_points, None, None, None);
@@ -221,19 +201,22 @@ fn owner_key(identity: &AccountHash) -> String{
     format!("owner_{}", identity)
 }
 
-fn delegate_key(identity: &AccountHash, delegate_type: &AccountHash, delegate: &AccountHash) -> String{
+fn delegate_length_key(identity: &AccountHash) -> String {
+    format!("{}_delegateLength",identity)
+}
+
+fn delegate_key(identity: &AccountHash, index: u64) -> String{
     //return string like this: "delegate_"
-    format!("delegate_{}_{}_{}", identity,delegate_type,delegate)
+    format!("{}_delegate_{}",identity,index)
 }
 
-fn changed_key(identity: &AccountHash) -> String{
-    format!("changed_{}",&identity)
+fn attribute_length_key(identity: &AccountHash,) -> String{
+    format!("{}_attributeLength",identity)
 }
 
-fn attribute_key(identity: &AccountHash,name: &str) -> String{
-    format!("attribute_{}_{}",identity,name)
+fn attribute_key(identity: &AccountHash,index: u64) -> String{
+    format!("{}_attribute_{}",identity, index)
 }
-
 
 fn get_key<T: FromBytes + CLTyped + Default>(name: &str) -> T {
     match runtime::get_key(name) {
