@@ -13,7 +13,7 @@
     "deploytest": "casper-client put-deploy --chain-name casper-net-1 --node-address http://localhost:40101 --secret-key /Users/vchikhladze/caspernode/casper-node/utils/nctl/assets/net-1/users/user-1/secret_key.pem --session-path ./target/wasm32-unknown-unknown/release/contract.wasm --payment-amount 50000000000",
     "getdeploy": "casper-client get-deploy 21ae214f411c8a273effd283ec88e3664500791da4955aef385bb62a8ec40924 --node-address http://128.199.63.141:7777",
     "getdeploytest": "casper-client get-deploy 5a7177926b32ebe878fef47c8d7cc55cc94cfc126e40076dcf23b5ceda5e6591 --node-address http://localhost:40101",
-    
+   
     "deployDid": "node ./js/did/deploy_did.js",
     "changeOwner": "node ./js/did/transact_changeOwner.js",
     "addDelegate": "node ./js/did/transact_addDelegate.js",
@@ -21,25 +21,25 @@
     "setAttribute": "node ./js/did/transact_setAttribute.js",
     "revokeAttribute": "node ./js/did/transact_revokeAttribute.js",
     "readDid": "node ./js/did/read_did.js",
-
-    "deployDemovcregistry" : "node ./js/demovcregistry/deploy_demovcregistry.js",
-    "initializeDemovc" : "node ./js/demovcregistry/transact_initialize.js",
-    "setSchema" : "node ./js/demovcregistry/transact_setSchema.js",
-    "issueDemoVC" : "node ./js/demovcregistry/transact_issueDemoVC.js",
-    "revokeDemoVC":"node ./js/demovcregistry/transact_revokeDemoVC.js",
-    "reActivateDemoVC" : "node ./js/demovcregistry/transact_reActivateDemoVC.js",
-    "sendVPRequest":"node ./js/demovcregistry/transact_sendVPRequest.js",
-    "registerVPResponse" : "node ./js/demovcregistry/transact_registerVPResponse.js",
-    "readDemoVC":"node ./js/demovcregistry/read_demoVC.js",
-
+    
+    "deployDemovcregistry": "node ./js/demovcregistry/deploy_demovcregistry.js",
+    "initializeDemovc": "node ./js/demovcregistry/transact_initialize.js",
+    "setSchema": "node ./js/demovcregistry/transact_setSchema.js",
+    "issueDemoVC": "node ./js/demovcregistry/transact_issueDemoVC.js",
+    "revokeDemoVC": "node ./js/demovcregistry/transact_revokeDemoVC.js",
+    "reActivateDemoVC": "node ./js/demovcregistry/transact_reActivateDemoVC.js",
+    "sendVPRequest": "node ./js/demovcregistry/transact_sendVPRequest.js",
+    "registerVPResponse": "node ./js/demovcregistry/transact_registerVPResponse.js",
+    "readDemoVC": "node ./js/demovcregistry/read_demoVC.js",
+    
     "deployVcregistry": "node ./js/vcregistry/deploy_vсregistry.js",
-    "issueVC":"node ./js/vcregistry/transact_issueVC.js",
+    "issueVC": "node ./js/vcregistry/transact_issueVC.js",
     "revokeVC": "node ./js/vcregistry/transact_revokeVC.js",
     "reActivateVC": "node ./js/vcregistry/transact_reActivateVC.js",
     "readVC": "node ./js/vcregistry/read_vcregistry.js",
     "create": "node ./js/createTransaction.js",
     "read": "node ./js/readState.js",
-    "testlocal":"make test"
+    "testlocal": "make test"
   },
   "repository": {
     "type": "git",
