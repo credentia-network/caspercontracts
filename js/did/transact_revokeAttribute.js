@@ -78,7 +78,7 @@ const main = async () => {
     );
 
     let identity = trent;
-    let index = 0;
+    let index = 1;
     await revokeAttribute(identity, index);
 };
 

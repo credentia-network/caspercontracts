@@ -114,7 +114,7 @@ const readAttribute = async(identity, index) => {
    
     try{
         let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[attribute_key])
-        console.log(result);
+        // console.log(result);
         let delegateKey = result["CLValue"]["data"][0]['data'];
         let delegateValue = result["CLValue"]["data"][1]['data'];
         let expirationTimestamp = Number.parseInt(result["CLValue"]["data"][2]['data'].toString());
@@ -144,14 +144,16 @@ const main = async () => {
     );
     
     
-    
+    console.log("Reading DID registry data for: ",trent.accountHex());
     let identity = trent;
     let index = 0;
     await readDelegateLength(identity);
     await readDelegate(identity,index);
     
     await readAttributeLength(identity);
-    await readAttribute(identity,index);
+    await readAttribute(identity,0);
+    await readAttribute(identity,1);
+    await readAttribute(identity,2);
 
     // const client = new CasperClient(DEPLOY_NODE_ADDRESS);
     // const clientRpc = new CasperServiceByJsonRPC(DEPLOY_NODE_ADDRESS);
@@ -185,7 +187,7 @@ const getAccountInfo = async (client, stateRootHash, keyPair) => {
 const getAccountNamedKeyValue = async (client, stateRootHash, keyPair, namedKey) => {
     // Chain query: get account information. 
     const accountInfo = await getAccountInfo(client, stateRootHash, keyPair);
-    console.log(accountInfo);
+    // console.log(accountInfo);
     // Get value of contract v1 named key.
     let res = _.find(accountInfo.namedKeys, (i) => { return i.name === namedKey });
     return res.key;

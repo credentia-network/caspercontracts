@@ -80,10 +80,21 @@ const main = async () => {
     );
 
     let identity = trent;
-    let attributeKey = "service-endpoint";
-    let attributeValue = "https://myservice.com";
-    let expire = new Date("2025-10-17T11:42:46.430Z").getTime();//unix timestamp in miliseconds
-    await setAttribute(identity,attributeKey,attributeValue,expire);
+    {
+        let attributeKey = "did/pub/Ed25519/veriKey/address";
+        const accountHash =  victor.accountHex();
+        let attributeValue = accountHash;
+        let expire = new Date("2025-10-17T11:42:46.430Z").getTime();//unix timestamp in miliseconds
+        console.log("Set Attribute: ",attributeKey," => ",attributeValue);
+        await setAttribute(identity,attributeKey,attributeValue,expire);
+    }
+    if(false){
+        let attributeKey = "did/svc/api";
+        let attributeValue = "https://myservice.com";
+        let expire = new Date("2025-10-17T11:42:46.430Z").getTime();//unix timestamp in miliseconds
+        await setAttribute(identity,attributeKey,attributeValue,expire);
+    }
+   
     
 };
 

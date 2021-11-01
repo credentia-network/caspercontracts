@@ -82,8 +82,8 @@ const main = async () => {
     );
 
     let identity = trent;
-    let delegateKey = "did/ether/0xdeadbeef";
-    let delegateValue = "abracadabra";
+    let delegateKey = "sigAuth";
+    let delegateValue = ippolit.accountHex();
     let expire = new Date("2025-10-17T11:42:46.430Z").getTime();//unix timestamp in miliseconds
     await addDelegate(identity,delegateKey,delegateValue,expire);
     
