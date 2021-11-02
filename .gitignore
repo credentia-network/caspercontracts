@@ -1,6 +1,8 @@
 
+.DS_Store
+.vscode
 Cargo.lock
-
 node_modules
+network_keys
 package-lock.json
 target
