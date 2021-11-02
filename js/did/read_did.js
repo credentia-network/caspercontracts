@@ -71,11 +71,11 @@ const readDelegate = async(identity, index) => {
         let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[delegate_key])
         console.log("Reading delegate result:");
         //console.log(result);
-        let delegateKey = result["CLValue"]["data"][0]['data'];
+        let delegateName = result["CLValue"]["data"][0]['data'];
         let delegateValue = result["CLValue"]["data"][1]['data'];
         let expirationTimestamp = Number.parseInt(result["CLValue"]["data"][2]['data'].toString());
 
-        console.log("Delegate Key: "+delegateKey);
+        console.log("Delegate Name: "+delegateName);
         console.log("Delegate Value: "+delegateValue);
         console.log("Expiration date: "+(new Date(expirationTimestamp)));
     }catch{
@@ -115,12 +115,12 @@ const readAttribute = async(identity, index) => {
     try{
         let result = await clientRpc.getBlockState(stateRootHash,CONTRACT_DID_HASH,[attribute_key])
         // console.log(result);
-        let delegateKey = result["CLValue"]["data"][0]['data'];
-        let delegateValue = result["CLValue"]["data"][1]['data'];
+        let attributeName = result["CLValue"]["data"][0]['data'];
+        let attributeValue = result["CLValue"]["data"][1]['data'];
         let expirationTimestamp = Number.parseInt(result["CLValue"]["data"][2]['data'].toString());
 
-        console.log("Attribute Key: "+delegateKey);
-        console.log("Attribute Value: "+delegateValue);
+        console.log("Attribute Name: "+attributeName);
+        console.log("Attribute Value: "+attributeValue);
         console.log("Expiration date: "+(new Date(expirationTimestamp)));
         
     }catch{
